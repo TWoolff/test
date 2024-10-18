@@ -1,4 +1,3 @@
-import { submitForm } from '@/services/submit';
 import css from './Form.module.css';
 
 type FormProps = {

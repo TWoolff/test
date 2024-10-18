@@ -25,7 +25,14 @@ export type InitData = {
 };
 
 export type PlayerType = {
+  id: string;
   name: string;
   nickname: string;
   profileImage: string;
+}
+
+export type TeamType = {
+  id: string;
+  name: string;
+  players: string[];
 }

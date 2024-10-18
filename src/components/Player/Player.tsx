@@ -1,6 +1,5 @@
 'use client'
 import { CldImage } from 'next-cloudinary';
-
 import { PlayerType } from "@/types/types";
 import { IconProfile } from "@/components/Icons/Icons";
 import css from './Player.module.css';
