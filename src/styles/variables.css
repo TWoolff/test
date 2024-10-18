@@ -1,0 +1,12 @@
+:root {
+  --color-black: rgb(0, 0, 0);
+  --color-grey: rgb(187, 187, 187);
+  --color-white: rgb(255, 255, 255);
+  --color-red: rgb(255, 0, 0);
+  --color-background: rgb(255, 255, 250);
+
+  --font-body: 'Open Sans', sans-serif;
+
+  --spacing-desktop: 3rem;
+  --spacing-mobile: 1rem;
+}

@@ -1,0 +1,45 @@
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-body);
+  font-style: normal;
+  text-wrap: balance;
+  line-height: 1;
+  margin: 0;
+}
+
+p, li, figcaption, span {
+	text-wrap: pretty;
+	max-width: 65ch;
+}
+
+p {
+	font-size: 0.75rem;
+	line-height: normal;
+	font-weight: 300;
+	margin-top: 0;
+	margin-bottom: 1rem;
+}
+
+h1 {
+	font-size: 3rem;
+	font-weight: 800;
+	letter-spacing: -0.0675px;
+	text-transform: uppercase;
+}
+
+h2 {
+	font-size: 2rem;
+	font-weight: 400;
+	text-transform: uppercase;
+}
+
+h3 {
+	font-size: 1rem;
+	font-weight: 400;
+	letter-spacing: -0.03rem;
+}
+
+a {
+	font-size: 0.75rem;
+	font-weight: 800;
+	text-transform: uppercase;
+}
