@@ -23,3 +23,9 @@ export type InitData = {
   title: string;
   slug: string;
 };
+
+export type PlayerType = {
+  name: string;
+  nickname: string;
+  profileImage: string;
+}

@@ -12,7 +12,7 @@ const Scoreboard: React.FC = () => {
 
   return ( 
     <section className='grid space'>
-			{state.hasLoaded ? <h1>Hello World</h1> : <Loader />}
+			{state.hasLoaded ? <h1>Scoreboard</h1> : <Loader />}
 		</section>
 	);
 };
