@@ -44,16 +44,33 @@ const PlayerForm: React.FC = () => {
 
 	return (
 		<form onSubmit={handleSubmit} className={css.playerForm}>
-			<fieldset>
-				<label htmlFor='name'>Name</label>
-				<input type='text' name='name' id='name' value={playerFormData.name} onChange={handlePlayerInputChange} />
-				<label htmlFor='nickname'>Nickname</label>
-				<input type='text' name='nickname' value={playerFormData.nickname} onChange={handlePlayerInputChange} />
-			</fieldset>
-			<fieldset>
-				<label htmlFor='profileImage'>Mug shot</label>
-				<input type='file' name='profileImage' onChange={handlePlayerInputChange} />
-			</fieldset>
+			<input 
+				type='text' 
+				name='name' 
+				placeholder='Player Name' 
+				value={playerFormData.name} 
+				onChange={handlePlayerInputChange} 
+				required 
+			/>
+			<input 
+				type='text' 
+				name='nickname' 
+				placeholder='Nickname (optional)' 
+				value={playerFormData.nickname} 
+				onChange={handlePlayerInputChange} 
+			/>
+			<div className={css.fileInputWrapper}>
+				<input 
+					type='file' 
+					name='profileImage' 
+					id='profileImage'
+					onChange={handlePlayerInputChange} 
+					accept="image/*"
+				/>
+				<label htmlFor='profileImage'>
+					{file ? file.name : 'Choose Mug Shot'}
+				</label>
+			</div>
 			<button type='submit'>Add Player</button>
 		</form>
 	)

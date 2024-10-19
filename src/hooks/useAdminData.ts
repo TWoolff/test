@@ -100,11 +100,13 @@ export const useAdminData = () => {
 		const handleComplete = useCallback(async () => {
 			if (completed) return;
 
+			const completedDate = new Date().toISOString();
 			setCompleted(true);
 			await updateMatch(match.id, {
 				completed: true,
 				homeScore,
-				awayScore
+				awayScore,
+				completedDate
 			});
 			await updateTeamPoints();
 		}, [completed, match.id, homeScore, awayScore]);

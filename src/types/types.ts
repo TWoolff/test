@@ -1,29 +1,3 @@
-import { Dispatch } from 'react';
-
-export type AppContextType = {
-	state: State;
-	dispatch: Dispatch<Action>;
-};
-
-export type Action = { type: 'SET_STATE'; payload: Partial<State> }| { type: string; payload?: any };
-
-export type DataState = {
-    data?: InitData;
-} | null | undefined | any;
-
-export type ErrorState = string | null;
-
-export type State = {
-	error: ErrorState | null;
-	data: null | DataState;
-	hasLoaded: boolean;
-};
-
-export type InitData = {
-  title: string;
-  slug: string;
-};
-
 export type PlayerType = {
   id: string;
   name: string;
@@ -38,34 +12,25 @@ export type TeamType = {
   points: number;
 };
 
-export type MatchData = {
-  id?: string;
-  homeTeam: string;
-  awayTeam: string;
+export type TeamReference = {
+  id: string;
+  name: string;
 };
 
-export interface MatchType {
+export type MatchType = {
   id: string;
-  homeTeam: {
-    id: string;
-    name: string;
-    points: number;
-  };
-  awayTeam: {
-    id: string;
-    name: string;
-    points: number;
-  };
+  homeTeam: TeamReference;
+  awayTeam: TeamReference;
   homeScore: number;
   awayScore: number;
   completed: boolean;
   winner: string | null;
   date: string;
+  completedDate?: string;
 }
 
-export type MatchWithScore = MatchType & { 
-  homeTeam: TeamType; 
-  awayTeam: TeamType; 
-  score?: { home: number; away: number } 
-  winner: TeamType;
-};
+export type MatchData = {
+  score: string;
+  date: string;
+  completed: boolean;
+}

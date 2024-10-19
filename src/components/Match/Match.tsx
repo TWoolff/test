@@ -19,7 +19,6 @@ const Match: React.FC<MatchProps> = ({ match, isAdmin = false, onScoreUpdate }) 
 		}
 	}
 
-	// Safely access team names
 	const getTeamName = (team: any): string => {
 		if (typeof team === 'object' && team !== null) {
 			if (team.name && typeof team.name === 'string') {
@@ -34,32 +33,39 @@ const Match: React.FC<MatchProps> = ({ match, isAdmin = false, onScoreUpdate }) 
 	const homeTeamName = getTeamName(match.homeTeam)
 	const awayTeamName = getTeamName(match.awayTeam)
 
+	const formatDate = (dateString: string) => {
+		return new Date(dateString).toLocaleString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+	}
+
 	return (
 		<div className="match">
 			<h2>{homeTeamName} vs {awayTeamName}</h2>
-			<p>Date: {new Date(match.date).toLocaleDateString()}</p>
-			{isAdmin ? (
+			<p>{completed ? 'Completed' : 'Created'} on: {formatDate(completed ? match.completedDate || match.date : match.date)}</p>
+			{isAdmin && !completed ? (
 				<>
 					<input 
 						type='number' 
 						value={homeScore} 
 						onChange={e => handleScoreUpdate('home', Number(e.target.value))} 
-						disabled={completed} 
 					/>
 					<input 
 						type='number' 
 						value={awayScore} 
 						onChange={e => handleScoreUpdate('away', Number(e.target.value))} 
-						disabled={completed} 
 					/>
-					<button onClick={handleComplete} disabled={completed}>
+					<button onClick={handleComplete}>
 						Complete Match
 					</button>
 				</>
 			) : (
 				<p>{completed ? 'Final' : 'Current'} Score: {homeScore} - {awayScore}</p>
 			)}
-			{completed && <p>Final Score: {homeScore} - {awayScore}</p>}
 		</div>
 	)
 }

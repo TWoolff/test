@@ -1,13 +1,11 @@
 'use client'
-import React, { useMemo, useState, useEffect, useRef } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { useAdminData } from '@/hooks/useAdminData'
-import { MatchType } from '@/types/types'
-import { sortMatches } from '@/utils/sortingUtils'
+import { MatchType, MatchData } from '@/types/types'
 import Modal from '@/components/Modal/Modal'
 
 const Scoreboard: React.FC = () => {
-  const { matches } = useAdminData()
-  const sortedMatches = useMemo(() => sortMatches(matches), [matches])
+  const { matches, teams } = useAdminData()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState<{
     homeTeam: string;
@@ -19,6 +17,46 @@ const Scoreboard: React.FC = () => {
 
   const prevMatchesRef = useRef<MatchType[]>([])
   const modalTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const matchesTable = useMemo(() => {
+    const table: { [key: string]: { [key: string]: MatchData } } = {}
+    
+    teams.forEach(team => {
+      table[team.id] = {}
+      teams.forEach(opponent => {
+        if (team.id !== opponent.id) {
+          table[team.id][opponent.id] = { score: '-', date: '', completed: false }
+        }
+      })
+    })
+
+    matches.forEach(match => {
+      const homeId = match.homeTeam.id
+      const awayId = match.awayTeam.id
+      const score = `${match.homeScore} - ${match.awayScore}`
+      const date = new Date(match.date).toLocaleDateString()
+      
+      if (!table[homeId]) {
+        table[homeId] = {}
+      }
+      
+      if (!table[homeId][awayId]) {
+        table[homeId][awayId] = { score: '-', date: '', completed: false }
+      }
+      
+      table[homeId][awayId] = { score, date, completed: match.completed }
+      
+      if (!table[awayId]) {
+        table[awayId] = {}
+      }
+      if (!table[awayId][homeId]) {
+        table[awayId][homeId] = { score: '-', date: '', completed: false }
+      }
+      table[awayId][homeId] = { score: `${match.awayScore} - ${match.homeScore}`, date, completed: match.completed }
+    })
+
+    return table
+  }, [matches, teams])
 
   useEffect(() => {
     const updatedMatch = matches.find((match, index) => {
@@ -36,12 +74,10 @@ const Scoreboard: React.FC = () => {
       })
       setIsModalOpen(true)
 
-      // Clear any existing timer
       if (modalTimerRef.current) {
         clearTimeout(modalTimerRef.current)
       }
 
-      // Set a new timer to close the modal after 10 seconds
       modalTimerRef.current = setTimeout(() => {
         setIsModalOpen(false)
       }, 5000)
@@ -49,7 +85,6 @@ const Scoreboard: React.FC = () => {
 
     prevMatchesRef.current = matches
 
-    // Cleanup function to clear the timer when component unmounts or re-renders
     return () => {
       if (modalTimerRef.current) {
         clearTimeout(modalTimerRef.current)
@@ -57,18 +92,40 @@ const Scoreboard: React.FC = () => {
     }
   }, [matches])
 
-
-
   return (
     <section className='grid space frontpage'>
       <h1>Scoreboard</h1>
-      {sortedMatches.map((match: MatchType) => (
-        <div key={match.id} className="match">
-          <h2>{match.homeTeam.name} vs {match.awayTeam.name}</h2>
-          <p>Date: {new Date(match.date).toLocaleDateString()}</p>
-          <p>{match.completed ? 'Final' : 'Current'} Score: {match.homeScore} - {match.awayScore}</p>
-        </div>
-      ))}
+      <div className="tableWrapper">
+        <table className='scoreboardTable'>
+          <thead>
+            <tr>
+              <th></th>
+              {teams.map(team => (
+                <th key={team.id}>{team.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {teams.map(rowTeam => (
+              <tr key={rowTeam.id}>
+                <th>{rowTeam.name}</th>
+                {teams.map(colTeam => {
+                  if (rowTeam.id === colTeam.id) {
+                    return <td key={colTeam.id} className='diagonalCell'></td>
+                  }
+                  const match = matchesTable[rowTeam.id][colTeam.id]
+                  return (
+                    <td key={colTeam.id} className={match.completed ? 'completedMatch' : 'activeMatch'}>
+                      <div>{match.score}</div>
+                      <div>{match.date}</div>
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
         {modalContent && (
           <div>

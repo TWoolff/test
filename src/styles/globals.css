@@ -1,51 +1,114 @@
-html, body {
-  max-width: 100vw;
-  overflow-x: hidden;
+html,
+body {
+	max-width: 100vw;
+	overflow-x: hidden;
 }
 
 body {
-  font-family: var(--font-body);
-  font-size: 16px;
-  color: var(--color-black);
-  background-color: var(--color-background);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	font-family: var(--font-body);
+	font-size: 16px;
+	color: var(--color-black);
+	background-color: var(--color-background);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+	color: inherit;
+	text-decoration: none;
 }
 
 img {
-  display: block;
-  border: 0;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
+	display: block;
+	border: 0;
+	width: 100%;
+	max-width: 100%;
+	height: auto;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-column-gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-column-gap: 1rem;
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(12, 1fr);
-  }
+	@media (min-width: 768px) {
+		grid-template-columns: repeat(12, 1fr);
+	}
 }
 
 .space {
-  grid-column: 1 / -1;
-  padding: 1.5rem var(--spacing-mobile);
+	grid-column: 1 / -1;
+	padding: 1.5rem var(--spacing-mobile);
 
-  @media (min-width: 768px) {
-    padding: 3rem var(--spacing-desktop);
-  }
+	@media (min-width: 768px) {
+		padding: 3rem var(--spacing-desktop);
+	}
 }
 
 .frontpage {
-  & h1, & div {
-    grid-column: 1 / -1;
-  }
+	& h1,
+  & div,
+	& .tableWrapper {
+		grid-column: 1 / -1;
+	}
+}
+
+.tableWrapper {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.scoreboardTable {
+	border-collapse: collapse;
+	width: 100%;
+
+	& th,
+	& td {
+		border: 1px solid var(--color-grey);
+		padding: 4px;
+		text-align: center;
+		font-size: 12px;
+	}
+
+	& th {
+		background-color: #f2f2f2;
+		white-space: nowrap;
+	}
+
+	& th:first-child,
+	& td:first-child {
+		position: sticky;
+		left: 0;
+		background-color: #f2f2f2;
+		z-index: 1;
+	}
+
+	@media (min-width: 768px) {
+		& th,
+		& td {
+			padding: 8px;
+			font-size: 14px;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		& th,
+		& td {
+			padding: 12px;
+			font-size: 16px;
+		}
+	}
+}
+
+.diagonalCell {
+	background-color: var(--color-grey);
+}
+
+.activeMatch {
+	background-color: #e6f7ff;
+}
+
+.completedMatch {
+	background-color: #f0f5f0;
 }
