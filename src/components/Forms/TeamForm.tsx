@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { PlayerType, TeamType } from '@/types/types'
+import { PlayerType } from '@/types/types'
 import { useAdminData } from '@/hooks/useAdminData'
 import css from './Forms.module.css'
 
@@ -9,20 +9,21 @@ interface TeamFormProps {
 }
 
 const TeamForm: React.FC<TeamFormProps> = ({ players }) => {
-	const [teamName, setTeamName] = useState('')
+	const [name, setName] = useState('')
 	const [selectedPlayers, setSelectedPlayers] = useState<string[]>([])
 	const { createTeam } = useAdminData()
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+		if (name.trim() === '') return;
+
 		try {
-			const teamData: Omit<TeamType, 'id'> = {
-				name: teamName,
-				players: selectedPlayers,
+			await createTeam({
+				name,
+				players: players.filter(player => selectedPlayers.includes(player.id)),
 				points: 0
-			}
-			await createTeam(teamData)
-			setTeamName('')
+			})
+			setName('')
 			setSelectedPlayers([])
 		} catch (error) {
 			console.error('Error creating team:', error)
@@ -31,36 +32,25 @@ const TeamForm: React.FC<TeamFormProps> = ({ players }) => {
 
 	return (
 		<form onSubmit={handleSubmit} className={css.teamForm}>
-			<fieldset>
-				<label htmlFor='teamName'>Team Name</label>
-				<input
-					type="text"
-					value={teamName}
-					onChange={(e) => setTeamName(e.target.value)}
-					placeholder="Team Name"
-					required
-				/>
-			</fieldset>
-			<fieldset>
-				<label htmlFor='players'>Select Players</label>
-				{players.map((player, i) => (
-					<label key={i}>
-						<input
-							type="checkbox"
-							value={player.id}
-							checked={selectedPlayers.includes(player.id)}
-							onChange={(e) => {
-								if (e.target.checked) {
-									setSelectedPlayers([...selectedPlayers, player.id])
-								} else {
-									setSelectedPlayers(selectedPlayers.filter(id => id !== player.id))
-								}
-							}}
-						/>
+			<input
+				type="text"
+				value={name}
+				onChange={(e) => setName(e.target.value)}
+				placeholder="Team Name"
+				required
+			/>
+			<select
+				multiple
+				value={selectedPlayers}
+				onChange={(e) => setSelectedPlayers(Array.from(e.target.selectedOptions, option => option.value))}
+			>
+				<option value="" disabled>Select Players</option>
+				{players.map((player, index) => (
+					<option key={player.id || `player-${index}`} value={player.id || `player-${index}`}>
 						{player.name}
-					</label>
+					</option>
 				))}
-			</fieldset>
+			</select>
 			<button type="submit">Create Team</button>
 		</form>
 	)

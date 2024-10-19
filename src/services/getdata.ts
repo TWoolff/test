@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, getDocs, doc, updateDoc, increment, addDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, setDoc, getDoc, writeBatch } from 'firebase/firestore';
 import { PlayerType, TeamType, MatchType } from '@/types/types';
 
 export const getPlayers = async (): Promise<PlayerType[]> => {
@@ -56,68 +56,35 @@ export const getMatches = async (): Promise<MatchType[]> => {
 };
 
 export const updateMatch = async (matchId: string, updateData: Partial<MatchType>) => {
-  const matchRef = doc(db, 'matches', matchId);
-
   try {
-    // Update the match
+    const matchRef = doc(db, 'matches', matchId);
     await updateDoc(matchRef, updateData);
-
-    // If the match is being completed, update team points
-    if (updateData.completed) {
-      const matchDoc = await getDoc(matchRef);
-      const matchData = matchDoc.data() as MatchType;
-
-      if (matchData.homeScore !== undefined && matchData.awayScore !== undefined) {
-        const homeTeamRef = doc(db, 'teams', matchData.homeTeam.id);
-        const awayTeamRef = doc(db, 'teams', matchData.awayTeam.id);
-
-        if (matchData.homeScore > matchData.awayScore) {
-          await updateDoc(homeTeamRef, { points: increment(3) });
-        } else if (matchData.homeScore < matchData.awayScore) {
-          await updateDoc(awayTeamRef, { points: increment(3) });
-        } else {
-          await updateDoc(homeTeamRef, { points: increment(1) });
-          await updateDoc(awayTeamRef, { points: increment(1) });
-        }
-      }
-    }
-
-    console.log("Match updated successfully");
   } catch (error) {
     console.error("Error updating match: ", error);
     throw error;
   }
 };
 
-export const createMatchesForNewTeam = async (newTeamId: string, existingTeams: TeamType[]) => {
+export const createMatchesForNewTeam = async (newTeamId: string, newTeamName: string, existingTeamIds: string[]) => {
   try {
     const matchesCollection = collection(db, 'matches');
-    const newTeamDoc = await getDoc(doc(db, 'teams', newTeamId));
-    const newTeamData = newTeamDoc.data() as TeamType;
-    const newTeamName = newTeamData.name;
+    
+    for (const existingTeamId of existingTeamIds) {
+      const existingTeamDoc = await getDoc(doc(db, 'teams', existingTeamId));
+      const existingTeamName = existingTeamDoc.exists() ? existingTeamDoc.data().name : 'Unknown Team';
 
-    const newMatches = existingTeams
-      .filter(team => team.id !== newTeamId)
-      .map(existingTeam => ({
-        homeTeam: {
-          id: newTeamId,
-          name: newTeamName,
-        },
-        awayTeam: {
-          id: existingTeam.id,
-          name: existingTeam.name,
-        },
+      const newMatch = {
+        homeTeam: { id: newTeamId, name: newTeamName },
+        awayTeam: { id: existingTeamId, name: existingTeamName },
         homeScore: 0,
         awayScore: 0,
         completed: false,
-        winner: null,
         date: new Date().toISOString()
-      }));
+      };
 
-    const addMatchPromises = newMatches.map(match => addDoc(matchesCollection, match));
-    await Promise.all(addMatchPromises);
-
-    console.log(`Created ${newMatches.length} new matches for team ${newTeamId}`);
+      const newMatchRef = doc(matchesCollection);
+      await setDoc(newMatchRef, newMatch);
+    }
   } catch (error) {
     console.error("Error creating matches for new team: ", error);
     throw error;
@@ -135,5 +102,41 @@ export const getExistingTeams = async (): Promise<TeamType[]> => {
   } catch (e) {
     console.error('Error getting existing teams:', e);
     throw e;
+  }
+};
+
+export const updateTeamPoints = async () => {
+  try {
+    const teamsCollection = collection(db, 'teams');
+    const matchesCollection = collection(db, 'matches');
+
+    const matchesSnapshot = await getDocs(matchesCollection);
+    const teamPoints = new Map();
+
+    matchesSnapshot.forEach((doc) => {
+      const match = doc.data() as MatchType;
+      if (match.completed) {
+        const homeTeamId = match.homeTeam.id;
+        const awayTeamId = match.awayTeam.id;
+
+        if (match.homeScore > match.awayScore) {
+          teamPoints.set(homeTeamId, (teamPoints.get(homeTeamId) || 0) + 3);
+        } else if (match.homeScore < match.awayScore) {
+          teamPoints.set(awayTeamId, (teamPoints.get(awayTeamId) || 0) + 3);
+        } else {
+          teamPoints.set(homeTeamId, (teamPoints.get(homeTeamId) || 0) + 1);
+          teamPoints.set(awayTeamId, (teamPoints.get(awayTeamId) || 0) + 1);
+        }
+      }
+    });
+    const batch = writeBatch(db);
+    teamPoints.forEach((points, teamId) => {
+      const teamRef = doc(teamsCollection, teamId);
+      batch.update(teamRef, { points });
+    });
+    await batch.commit();
+  } catch (error) {
+    console.error("Error updating team points: ", error);
+    throw error;
   }
 };

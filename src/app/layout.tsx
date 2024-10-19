@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { AppProvider } from '@/services/context';
 import Header from '@/components/Header/Header';
 import '@/styles/index.css';
 
@@ -26,12 +25,10 @@ const RootLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
   return (
     <html lang='en'>
       <body>
-        <AppProvider>
         <Header />
           <main className='grid'>
             {children}
           </main>
-        </AppProvider>
       </body>
     </html>
   )

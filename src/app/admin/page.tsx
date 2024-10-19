@@ -1,7 +1,8 @@
 'use client'
-import React, { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { PlayerType, TeamType, MatchType } from '@/types/types'
 import { useAdminData } from '@/hooks/useAdminData'
+import { sortMatches, sortTeams } from '@/utils/sortingUtils'
 import Accordion from '@/components/Accordion/Accordion'
 import PlayerForm from '@/components/Forms/PlayerForm'
 import TeamForm from '@/components/Forms/TeamForm'
@@ -13,19 +14,7 @@ import css from './admin.module.css'
 const Admin: React.FC = () => {
 	const { players, teams, matches } = useAdminData()
 	const renderPlayer = useCallback((player: PlayerType, i: number) => <Player key={`player-${i}`} {...player} />, [])
-
-	const sortedTeams = useMemo(() => {
-		return [...teams].sort((a, b) => b.points - a.points);
-	}, [teams]);
-
-	const sortedMatches = useMemo(() => {
-		return [...matches].sort((a, b) => {
-			if (a.completed === b.completed) {
-				return new Date(b.date).getTime() - new Date(a.date).getTime();
-			}
-			return a.completed ? 1 : -1;
-		});
-	}, [matches]);
+	const sortedTeams = sortTeams(teams)
 
 	return (
 		<section className='grid space'>
@@ -41,14 +30,14 @@ const Admin: React.FC = () => {
 					<h2>Teams</h2>
 					{sortedTeams.map((team: TeamType, i: number) => (
 						<div key={`team-${i}`}>
-							<Team {...team} />
+							<Team name={team.name} points={team.points} players={team.players} id={team.id} />
 						</div>
 					))}
 				</div>
 				<div>
 					<h2>Matches</h2>
-					{sortedMatches.map((match: MatchType, i: number) => (
-						<Match key={`match-${i}`} match={match} />
+					{matches.map((match: MatchType, i: number) => (
+						<Match key={`match-${i}`} match={match} isAdmin={true} />
 					))}
 				</div>
 			</div>

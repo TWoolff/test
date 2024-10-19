@@ -4,7 +4,7 @@ import { TeamType } from "@/types/types";
 import css from './Team.module.css';
 
 const Team: React.FC<TeamType> = ({ name, points, players }) => {
-  const playerNames = players.map(player => player.name).join(', ');
+  const playerNames = players?.map(player => player.name).join(', ') || '';
 
   return (
     <div className={css.team}>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { collection, onSnapshot, query, addDoc } from 'firebase/firestore'
 import { db } from '@/services/firebase'
-import { getPlayers, createMatchesForNewTeam, getExistingTeams, updateMatch } from '@/services/getdata'
+import { getPlayers, createMatchesForNewTeam, getExistingTeams, updateMatch, updateTeamPoints } from '@/services/getdata'
 import { PlayerType, TeamType, MatchType } from '@/types/types'
 
 
@@ -50,13 +50,23 @@ export const useAdminData = () => {
 	const createTeam = async (teamData: Omit<TeamType, 'id'>) => {
 		try {
 			const teamsCollection = collection(db, 'teams');
+			
+			// Create a new object with only defined values
+			const cleanTeamData = Object.entries(teamData).reduce((acc, [key, value]) => {
+				if (value !== undefined) {
+					acc[key] = value;
+				}
+				return acc;
+			}, {} as Record<string, any>);
+
 			const newTeamRef = await addDoc(teamsCollection, {
-				...teamData,
+				...cleanTeamData,
 				points: 0,
-				players: teamData.players.map(player => player.id) // Store only player IDs
+				players: cleanTeamData.players ? cleanTeamData.players.map((player: PlayerType) => player.id) : []
 			});
 			const existingTeams = await getExistingTeams();
-			await createMatchesForNewTeam(newTeamRef.id, existingTeams);
+			const existingTeamIds = existingTeams.map(team => team.id).filter(id => id !== newTeamRef.id);
+			await createMatchesForNewTeam(newTeamRef.id, cleanTeamData.name, existingTeamIds);
 			return newTeamRef.id;
 		} catch (error) {
 			console.error("Error creating team: ", error);
@@ -79,6 +89,11 @@ export const useAdminData = () => {
 				setAwayScore(newScore);
 			}
 
+			if (typeof match.id !== 'string') {
+				console.error('Invalid match ID:', match.id);
+				return;
+			}
+
 			await updateMatch(match.id, { [`${team}Score`]: newScore });
 		}, [completed, match.id]);
 
@@ -91,6 +106,7 @@ export const useAdminData = () => {
 				homeScore,
 				awayScore
 			});
+			await updateTeamPoints();
 		}, [completed, match.id, homeScore, awayScore]);
 
 		return { homeScore, awayScore, completed, handleScoreChange, handleComplete };
