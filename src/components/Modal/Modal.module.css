@@ -1,0 +1,48 @@
+.modalOverlay {
+  background-color: rgba(30, 41, 59, 0.2);
+  backdrop-filter: blur(8px);
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  overflow-y: scroll;
+  cursor: pointer;
+}
+
+.modalContent {
+  background-color: var(--color-white);
+  color: var(--color-black);
+  padding: 2rem;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 32rem;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+
+.modalInner {
+  position: relative;
+  z-index: 10;
+}
+
+.modalTitle {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.close {
+  position: absolute;
+  top: -1.5rem;
+  right: -0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-black);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-weight: 800;
+  text-transform: uppercase;
+}

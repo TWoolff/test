@@ -1,27 +1,34 @@
-import { useState, useCallback, useEffect } from 'react';
-import { getPlayers, getTeams } from "@/services/getdata";
+import { useState, useEffect } from 'react';
+import { db } from '@/services/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { PlayerType, TeamType } from "@/types/types";
 
 export const useAdminData = () => {
   const [players, setPlayers] = useState<PlayerType[]>([]);
   const [teams, setTeams] = useState<TeamType[]>([]);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [fetchedPlayers, fetchedTeams] = await Promise.all([
-        getPlayers(),
-        getTeams()
-      ]);
-      setPlayers(fetchedPlayers);
-      setTeams(fetchedTeams);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
+  useEffect(() => {
+    const playersUnsubscribe = onSnapshot(collection(db, 'players'), (snapshot) => {
+      const updatedPlayers = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as PlayerType[];
+      setPlayers(updatedPlayers);
+    });
+
+    const teamsUnsubscribe = onSnapshot(collection(db, 'teams'), (snapshot) => {
+      const updatedTeams = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as TeamType[];
+      setTeams(updatedTeams);
+    });
+
+    return () => {
+      playersUnsubscribe();
+      teamsUnsubscribe();
+    };
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { players, teams, fetchData };
+  return { players, teams };
 };

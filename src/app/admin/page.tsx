@@ -1,14 +1,15 @@
-'use client';
-import { useMemo } from "react";
-import Player from "@/components/Player/Player";
-import Team from "@/components/Team/Team";
-import PlayerForm from "@/components/Form/PlayerForm";
-import TeamForm from "@/components/Form/TeamForm";
-import { useAdminData } from "@/hooks/useAdminData";
-import css from "./admin.module.css";
+'use client'
+import { useMemo } from 'react'
+import { useAdminData } from '@/hooks/useAdminData'
+import Accordion from '@/components/Accordion/Accordion'
+import PlayerForm from '@/components/Forms/PlayerForm'
+import TeamForm from '@/components/Forms/TeamForm'
+import Player from '@/components/Player/Player'
+import Team from '@/components/Team/Team'
+import css from './admin.module.css'
 
 const Admin: React.FC = () => {
-  const { players, teams, fetchData } = useAdminData();
+	const { players, teams } = useAdminData();
 
   const teamsWithPlayerNames = useMemo(() => teams.map(team => ({
     ...team,
@@ -20,14 +21,24 @@ const Admin: React.FC = () => {
   return (
     <section className='grid space'>
       <h1>Admin</h1>
-      <PlayerForm onPlayerAdded={fetchData} />
-      <TeamForm players={players} onTeamAdded={fetchData} />
-      <h3>Players</h3>
-      {players.map((player) => <Player key={player.id} {...player} />)}
-      <h3>Teams</h3>
-      {teamsWithPlayerNames.map((team) => <Team key={team.id} {...team} />)}
-    </section>
-  );
-};
+      <Accordion title='Add player' content={<PlayerForm />} />
+      <Accordion title='Add team' content={<TeamForm players={players} />} />
+			<div className={css.adminInfo}>
+        <div>
+          <h2>Players</h2>
+          {players.map((player, i) => (
+            <Player key={i} {...player} />
+          ))}
+        </div>
+        <div>
+          <h2>Teams</h2>
+          {teamsWithPlayerNames.map(team => (
+            <Team key={team.id} {...team} />
+          ))}
+        </div>
+			</div>
+		</section>
+	)
+}
 
-export default Admin;
+export default Admin
