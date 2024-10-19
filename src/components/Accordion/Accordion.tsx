@@ -11,7 +11,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, content }) => {
       <summary>
         <h2>{title}</h2>
       </summary>
-      <>{content}</>
+      {content}
     </details>
   )
 }

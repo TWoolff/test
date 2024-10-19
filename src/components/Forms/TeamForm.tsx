@@ -1,39 +1,31 @@
 'use client'
-import { useState } from 'react'
-import { submitForm } from '@/services/submit'
-import { PlayerType } from '@/types/types'
+import React, { useState } from 'react'
+import { PlayerType, TeamType } from '@/types/types'
+import { useAdminData } from '@/hooks/useAdminData'
 import css from './Forms.module.css'
 
-const initialTeamFormData = {
-	name: '',
-	players: [] as string[],
-}
-
-type TeamFormProps = {
+interface TeamFormProps {
 	players: PlayerType[]
 }
 
 const TeamForm: React.FC<TeamFormProps> = ({ players }) => {
-	const [teamFormData, setTeamFormData] = useState<typeof initialTeamFormData>(initialTeamFormData)
+	const [teamName, setTeamName] = useState('')
+	const [selectedPlayers, setSelectedPlayers] = useState<string[]>([])
+	const { createTeam } = useAdminData()
 
-	const handleTeamInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-		const { name, value } = e.target
-		if (name === 'players') {
-			const selectedOptions = (e.target as HTMLSelectElement).selectedOptions
-			const selectedPlayers = Array.from(selectedOptions).map(option => option.value)
-			setTeamFormData(prev => ({ ...prev, [name]: selectedPlayers }))
-		} else {
-			setTeamFormData(prev => ({ ...prev, [name]: value }))
-		}
-	}
-
-	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault()
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
 		try {
-			await submitForm(teamFormData, 'teams')
-			setTeamFormData(initialTeamFormData)
+			const teamData: Omit<TeamType, 'id'> = {
+				name: teamName,
+				players: selectedPlayers,
+				points: 0
+			}
+			await createTeam(teamData)
+			setTeamName('')
+			setSelectedPlayers([])
 		} catch (error) {
-			console.error('Error submitting team:', error)
+			console.error('Error creating team:', error)
 		}
 	}
 
@@ -41,19 +33,35 @@ const TeamForm: React.FC<TeamFormProps> = ({ players }) => {
 		<form onSubmit={handleSubmit} className={css.teamForm}>
 			<fieldset>
 				<label htmlFor='teamName'>Team Name</label>
-				<input type='text' id='teamName' name='name' value={teamFormData.name} onChange={handleTeamInputChange} required />
+				<input
+					type="text"
+					value={teamName}
+					onChange={(e) => setTeamName(e.target.value)}
+					placeholder="Team Name"
+					required
+				/>
 			</fieldset>
 			<fieldset>
 				<label htmlFor='players'>Select Players</label>
-				<select multiple id='players' name='players' value={teamFormData.players} onChange={handleTeamInputChange} required>
-					{players.map((player, i) => (
-						<option key={i} value={player.id}>
-							{player.name} ({player.nickname})
-						</option>
-					))}
-				</select>
+				{players.map((player, i) => (
+					<label key={i}>
+						<input
+							type="checkbox"
+							value={player.id}
+							checked={selectedPlayers.includes(player.id)}
+							onChange={(e) => {
+								if (e.target.checked) {
+									setSelectedPlayers([...selectedPlayers, player.id])
+								} else {
+									setSelectedPlayers(selectedPlayers.filter(id => id !== player.id))
+								}
+							}}
+						/>
+						{player.name}
+					</label>
+				))}
 			</fieldset>
-			<button type='submit'>Add Team</button>
+			<button type="submit">Create Team</button>
 		</form>
 	)
 }

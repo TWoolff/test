@@ -34,7 +34,7 @@ export type PlayerType = {
 export type TeamType = {
   id: string;
   name: string;
-  players: string[];
+  players: PlayerType[];
   points: number;
 };
 
@@ -44,15 +44,24 @@ export type MatchData = {
   awayTeam: string;
 };
 
-export type MatchType = {
+export interface MatchType {
   id: string;
-  homeTeam: TeamType;
-  awayTeam: TeamType;
-  homeScore?: number;
-  awayScore?: number;
+  homeTeam: {
+    id: string;
+    name: string;
+    points: number;
+  };
+  awayTeam: {
+    id: string;
+    name: string;
+    points: number;
+  };
+  homeScore: number;
+  awayScore: number;
   completed: boolean;
-  winner?: string; // Team ID
-};
+  winner: string | null;
+  date: string;
+}
 
 export type MatchWithScore = MatchType & { 
   homeTeam: TeamType; 

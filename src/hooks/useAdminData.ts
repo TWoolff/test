@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
-import { collection, onSnapshot, query } from 'firebase/firestore'
+import { useState, useEffect, useCallback } from 'react'
+import { collection, onSnapshot, query, addDoc } from 'firebase/firestore'
 import { db } from '@/services/firebase'
+import { getPlayers, createMatchesForNewTeam, getExistingTeams, updateMatch } from '@/services/getdata'
 import { PlayerType, TeamType, MatchType } from '@/types/types'
-import { getPlayers } from '@/services/getdata'
+
 
 export const useAdminData = () => {
 	const [players, setPlayers] = useState<PlayerType[]>([])
@@ -11,50 +12,32 @@ export const useAdminData = () => {
 
 	useEffect(() => {
 		const playersQuery = query(collection(db, 'players'))
-		const teamsQuery = query(collection(db, 'teams'))
-		const matchesQuery = query(collection(db, 'matches'))
-
 		const unsubscribePlayers = onSnapshot(playersQuery, (snapshot) => {
-			setPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PlayerType)))
+			const playersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PlayerType))
+			setPlayers(playersData)
 		})
 
+		const teamsQuery = query(collection(db, 'teams'))
 		const unsubscribeTeams = onSnapshot(teamsQuery, async (snapshot) => {
 			const players = await getPlayers();
-			const newTeams = snapshot.docs.map(doc => {
+			const teamsData = snapshot.docs.map(doc => {
 				const teamData = doc.data();
-				return { 
-					id: doc.id, 
-					...teamData,
-					players: teamData.players.map((playerId: string) => 
-						players.find(player => player.id === playerId)?.name || 'Unknown Player'
-					),
-					points: teamData.points || 0
+				return {
+					id: doc.id,
+					name: teamData.name,
+					points: teamData.points || 0,
+					players: teamData.players?.map((playerId: string) => 
+						players.find(player => player.id === playerId) || { id: playerId, name: 'Unknown Player' }
+					) || []
 				} as TeamType;
 			});
-			setTeams(newTeams);
-			
-			setMatches(prevMatches => prevMatches.map(match => ({
-				...match,
-				homeTeam: newTeams.find(team => team.id === match.homeTeam.id) || match.homeTeam,
-				awayTeam: newTeams.find(team => team.id === match.awayTeam.id) || match.awayTeam
-			})))
+			setTeams(teamsData);
 		})
 
+		const matchesQuery = query(collection(db, 'matches'))
 		const unsubscribeMatches = onSnapshot(matchesQuery, (snapshot) => {
-			setMatches(prevMatches => {
-				const updatedMatches = snapshot.docs.map(doc => {
-					const matchData = doc.data();
-					const existingMatch = prevMatches.find(m => m.id === doc.id);
-					return {
-						...existingMatch,
-						id: doc.id,
-						...matchData,
-						homeTeam: existingMatch?.homeTeam || { id: matchData.homeTeam, name: 'Unknown Team' },
-						awayTeam: existingMatch?.awayTeam || { id: matchData.awayTeam, name: 'Unknown Team' }
-					} as MatchType;
-				});
-				return updatedMatches;
-			});
+			const matchesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MatchType))
+			setMatches(matchesData)
 		})
 
 		return () => {
@@ -64,5 +47,54 @@ export const useAdminData = () => {
 		}
 	}, [])
 
-	return { players, teams, matches }
+	const createTeam = async (teamData: Omit<TeamType, 'id'>) => {
+		try {
+			const teamsCollection = collection(db, 'teams');
+			const newTeamRef = await addDoc(teamsCollection, {
+				...teamData,
+				points: 0,
+				players: teamData.players.map(player => player.id) // Store only player IDs
+			});
+			const existingTeams = await getExistingTeams();
+			await createMatchesForNewTeam(newTeamRef.id, existingTeams);
+			return newTeamRef.id;
+		} catch (error) {
+			console.error("Error creating team: ", error);
+			throw error;
+		}
+	};
+
+	const useMatchData = (match: MatchType) => {
+		const [homeScore, setHomeScore] = useState<number>(match.homeScore);
+		const [awayScore, setAwayScore] = useState<number>(match.awayScore);
+		const [completed, setCompleted] = useState<boolean>(match.completed);
+
+		const handleScoreChange = useCallback(async (team: 'home' | 'away', score: number) => {
+			if (completed) return;
+
+			const newScore = score >= 0 ? score : 0;
+			if (team === 'home') {
+				setHomeScore(newScore);
+			} else {
+				setAwayScore(newScore);
+			}
+
+			await updateMatch(match.id, { [`${team}Score`]: newScore });
+		}, [completed, match.id]);
+
+		const handleComplete = useCallback(async () => {
+			if (completed) return;
+
+			setCompleted(true);
+			await updateMatch(match.id, {
+				completed: true,
+				homeScore,
+				awayScore
+			});
+		}, [completed, match.id, homeScore, awayScore]);
+
+		return { homeScore, awayScore, completed, handleScoreChange, handleComplete };
+	};
+
+	return { players, teams, matches, createTeam, useMatchData }
 }

@@ -43,3 +43,9 @@ img {
     padding: 3rem var(--spacing-desktop);
   }
 }
+
+.frontpage {
+  & h1, & div {
+    grid-column: 1 / -1;
+  }
+}

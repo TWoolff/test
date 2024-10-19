@@ -18,6 +18,15 @@ const Admin: React.FC = () => {
 		return [...teams].sort((a, b) => b.points - a.points);
 	}, [teams]);
 
+	const sortedMatches = useMemo(() => {
+		return [...matches].sort((a, b) => {
+			if (a.completed === b.completed) {
+				return new Date(b.date).getTime() - new Date(a.date).getTime();
+			}
+			return a.completed ? 1 : -1;
+		});
+	}, [matches]);
+
 	return (
 		<section className='grid space'>
 			<h1>Admin</h1>
@@ -38,7 +47,7 @@ const Admin: React.FC = () => {
 				</div>
 				<div>
 					<h2>Matches</h2>
-					{matches.map((match: MatchType, i: number) => (
+					{sortedMatches.map((match: MatchType, i: number) => (
 						<Match key={`match-${i}`} match={match} />
 					))}
 				</div>
