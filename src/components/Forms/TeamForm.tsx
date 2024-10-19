@@ -15,13 +15,13 @@ const TeamForm: React.FC<TeamFormProps> = ({ players }) => {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		if (name.trim() === '') return;
+		if (name.trim() === '') return
 
 		try {
 			await createTeam({
 				name,
 				players: players.filter(player => selectedPlayers.includes(player.id)),
-				points: 0
+				points: 0,
 			})
 			setName('')
 			setSelectedPlayers([])
@@ -32,26 +32,18 @@ const TeamForm: React.FC<TeamFormProps> = ({ players }) => {
 
 	return (
 		<form onSubmit={handleSubmit} className={css.teamForm}>
-			<input
-				type="text"
-				value={name}
-				onChange={(e) => setName(e.target.value)}
-				placeholder="Team Name"
-				required
-			/>
-			<select
-				multiple
-				value={selectedPlayers}
-				onChange={(e) => setSelectedPlayers(Array.from(e.target.selectedOptions, option => option.value))}
-			>
-				<option value="" disabled>Select Players</option>
+			<input type='text' value={name} onChange={e => setName(e.target.value)} placeholder='Team Name' required />
+			<select multiple value={selectedPlayers} onChange={e => setSelectedPlayers(Array.from(e.target.selectedOptions, option => option.value))}>
+				<option value='' disabled>
+					Select Players
+				</option>
 				{players.map((player, index) => (
 					<option key={player.id || `player-${index}`} value={player.id || `player-${index}`}>
 						{player.name}
 					</option>
 				))}
 			</select>
-			<button type="submit">Create Team</button>
+			<button type='submit'>Create Team</button>
 		</form>
 	)
 }
