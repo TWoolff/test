@@ -35,4 +35,28 @@ export type TeamType = {
   id: string;
   name: string;
   players: string[];
-}
+  points: number;
+};
+
+export type MatchData = {
+  id?: string;
+  homeTeam: string;
+  awayTeam: string;
+};
+
+export type MatchType = {
+  id: string;
+  homeTeam: string; 
+  awayTeam: string; 
+  homeScore: number;
+  awayScore: number;
+  completed: boolean;
+  winner?: string; 
+};
+
+export type MatchWithScore = MatchType & { 
+  homeTeam: TeamType; 
+  awayTeam: TeamType; 
+  score?: { home: number; away: number } 
+  winner: TeamType;
+};
