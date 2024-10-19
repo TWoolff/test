@@ -46,12 +46,12 @@ export type MatchData = {
 
 export type MatchType = {
   id: string;
-  homeTeam: string; 
-  awayTeam: string; 
-  homeScore: number;
-  awayScore: number;
+  homeTeam: TeamType;
+  awayTeam: TeamType;
+  homeScore?: number;
+  awayScore?: number;
   completed: boolean;
-  winner?: string; 
+  winner?: string; // Team ID
 };
 
 export type MatchWithScore = MatchType & { 

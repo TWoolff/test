@@ -6,13 +6,12 @@ interface TeamProps extends Omit<TeamType, 'players'> {
   players: string[];
 }
 
-const Team: React.FC<TeamProps> = ({ name, players, id }) => {
+const Team: React.FC<TeamProps> = ({ name, players, points }) => {
   return (
     <div className={css.team}>
       <h3>{name}</h3>
-      <ul>
-        {players.map((playerName, index) => <li key={`${id}-${index}`}>{playerName}</li>)}
-      </ul>
+      <p>Points: {points}</p>
+      <p>Players: {players.join(', ')}</p>
     </div>
   );
 }

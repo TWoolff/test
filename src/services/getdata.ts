@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, getDocs, doc, updateDoc, increment, runTransaction } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, increment } from 'firebase/firestore';
 import { PlayerType, TeamType, MatchType } from '@/types/types';
 
 export const getPlayers = async (): Promise<PlayerType[]> => {
@@ -25,8 +25,9 @@ export const getTeams = async (): Promise<TeamType[]> => {
         id: doc.id,
         ...teamData,
         players: teamData.players.map((playerId: string) => 
-          players.find(player => player.id === playerId)?.name || playerId
-        )
+          players.find(player => player.id === playerId)?.name || 'Unknown Player'
+        ),
+        points: teamData.points || 0
       } as TeamType;
     });
   } catch (e) {
@@ -58,33 +59,22 @@ export const updateMatch = async (matchId: string, updateData: Partial<MatchType
   const matchRef = doc(db, 'matches', matchId);
 
   try {
-    await runTransaction(db, async (transaction) => {
-      const matchDoc = await transaction.get(matchRef);
-      if (!matchDoc.exists()) {
-        throw new Error("Match does not exist!");
+    const filteredUpdateData = Object.entries(updateData).reduce<Record<string, any>>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
       }
+      return acc;
+    }, {});
 
-      // Filter out undefined values
-      const filteredUpdateData = Object.entries(updateData).reduce((acc, [key, value]) => {
-        if (value !== undefined) {
-          acc[key] = value;
-        }
-        return acc;
-      }, {} as Partial<MatchType>);
+    await updateDoc(matchRef, filteredUpdateData);
 
-      // Update the match only if there are valid fields to update
-      if (Object.keys(filteredUpdateData).length > 0) {
-        transaction.update(matchRef, filteredUpdateData);
-      }
-
-      // If the match is completed and has a winner, update the winner's points
-      if (filteredUpdateData.completed && filteredUpdateData.winner) {
-        const winnerRef = doc(db, 'teams', filteredUpdateData.winner);
-        transaction.update(winnerRef, {
-          points: increment(3) // Assuming a win is worth 3 points
-        });
-      }
-    });
+    if (filteredUpdateData.completed && filteredUpdateData.winner) {
+      const winnerRef = doc(db, 'teams', filteredUpdateData.winner);
+      await updateDoc(winnerRef, {
+        points: increment(3)
+      });
+      console.log(`Updated points for team ${filteredUpdateData.winner}`);
+    }
 
     console.log("Match updated successfully");
   } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TeamType, MatchType } from '@/types/types'
+import { MatchType } from '@/types/types'
 import { updateMatch } from '@/services/getdata';
 
 interface MatchProps {
@@ -9,6 +9,7 @@ interface MatchProps {
 const Match: React.FC<MatchProps> = ({ match }) => {
   const [homeScore, setHomeScore] = useState<number | undefined>(match.homeScore);
   const [awayScore, setAwayScore] = useState<number | undefined>(match.awayScore);
+  const [completed, setCompleted] = useState<boolean>(match.completed);
 
   const handleComplete = async () => {
     if (homeScore === undefined || awayScore === undefined) {
@@ -25,6 +26,7 @@ const Match: React.FC<MatchProps> = ({ match }) => {
         winner
       });
       console.log("Match completed successfully");
+      setCompleted(true);
     } catch (error) {
       console.error("Error completing match: ", error);
     }
@@ -38,16 +40,19 @@ const Match: React.FC<MatchProps> = ({ match }) => {
         value={homeScore ?? ''} 
         onChange={(e) => setHomeScore(e.target.value === '' ? undefined : Number(e.target.value))} 
         placeholder="Home Score" 
+        disabled={completed}
       />
       <input 
         type="number" 
         value={awayScore ?? ''} 
         onChange={(e) => setAwayScore(e.target.value === '' ? undefined : Number(e.target.value))} 
         placeholder="Away Score" 
+        disabled={completed}
       />
-      <button onClick={handleComplete} disabled={homeScore === undefined || awayScore === undefined}>
+      <button onClick={handleComplete} disabled={homeScore === undefined || awayScore === undefined || completed}>
         Complete Match
       </button>
+      {completed && <p>Match completed</p>}
     </div>
   );
 };

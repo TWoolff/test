@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { collection, onSnapshot, query } from 'firebase/firestore'
 import { db } from '@/services/firebase'
 import { PlayerType, TeamType, MatchType } from '@/types/types'
-import { getOrCreateMatches } from '@/utils/createMatches'
+import { getPlayers } from '@/services/getdata'
 
 export const useAdminData = () => {
 	const [players, setPlayers] = useState<PlayerType[]>([])
@@ -18,22 +18,43 @@ export const useAdminData = () => {
 			setPlayers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PlayerType)))
 		})
 
-		const unsubscribeTeams = onSnapshot(teamsQuery, (snapshot) => {
-			const newTeams = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TeamType))
-			setTeams(newTeams)
+		const unsubscribeTeams = onSnapshot(teamsQuery, async (snapshot) => {
+			const players = await getPlayers();
+			const newTeams = snapshot.docs.map(doc => {
+				const teamData = doc.data();
+				return { 
+					id: doc.id, 
+					...teamData,
+					players: teamData.players.map((playerId: string) => 
+						players.find(player => player.id === playerId)?.name || 'Unknown Player'
+					),
+					points: teamData.points || 0
+				} as TeamType;
+			});
+			setTeams(newTeams);
 			
-			// Create or update matches when teams change
-			getOrCreateMatches(newTeams).then(updatedMatches => {
-				setMatches(updatedMatches.map(match => ({
-					...match,
-					homeTeam: teams.find(team => team.id === match.homeTeam) || match.homeTeam,
-					awayTeam: teams.find(team => team.id === match.awayTeam) || match.awayTeam
-				} as MatchType)))
-			})
+			setMatches(prevMatches => prevMatches.map(match => ({
+				...match,
+				homeTeam: newTeams.find(team => team.id === match.homeTeam.id) || match.homeTeam,
+				awayTeam: newTeams.find(team => team.id === match.awayTeam.id) || match.awayTeam
+			})))
 		})
 
 		const unsubscribeMatches = onSnapshot(matchesQuery, (snapshot) => {
-			setMatches(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MatchType)))
+			setMatches(prevMatches => {
+				const updatedMatches = snapshot.docs.map(doc => {
+					const matchData = doc.data();
+					const existingMatch = prevMatches.find(m => m.id === doc.id);
+					return {
+						...existingMatch,
+						id: doc.id,
+						...matchData,
+						homeTeam: existingMatch?.homeTeam || { id: matchData.homeTeam, name: 'Unknown Team' },
+						awayTeam: existingMatch?.awayTeam || { id: matchData.awayTeam, name: 'Unknown Team' }
+					} as MatchType;
+				});
+				return updatedMatches;
+			});
 		})
 
 		return () => {
