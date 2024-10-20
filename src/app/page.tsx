@@ -1,9 +1,10 @@
 'use client'
 import { useMemo, useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { useAdminData } from '@/hooks/useAdminData'
 import { MatchType, MatchData } from '@/types/types'
 import Modal from '@/components/Modal/Modal'
-import Image from 'next/image'
+import { IconScore } from '@/components/Icons/Icons'
 
 const Scoreboard: React.FC = () => {
 	const { matches, teams } = useAdminData()
@@ -101,7 +102,7 @@ const Scoreboard: React.FC = () => {
 
 	return (
 		<section className='grid space frontpage'>
-			<h1>Scoreboard</h1>
+			<h1><IconScore /> Scoreboard</h1>
 			<div className='tableWrapper'>
 				<table className='scoreboardTable'>
 					<thead>

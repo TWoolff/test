@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { useAdminData } from '@/hooks/useAdminData'
 import Team from '@/components/Team/Team'
 import { sortTeams } from '@/utils/sortingUtils'
+import { IconLeader } from '@/components/Icons/Icons'
 
 const Leaderboard: React.FC = () => {
 	const { teams } = useAdminData()
@@ -11,7 +12,7 @@ const Leaderboard: React.FC = () => {
 
 	return (
 		<section className='grid space frontpage'>
-			<h1>Leaderboard</h1>
+			<h1><IconLeader /> Leaderboard</h1>
 			<div>
 				{sortedTeams.map((team, index) => (
 					<div key={team.id}>
