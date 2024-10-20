@@ -1,6 +1,7 @@
 import React from 'react'
 import { MatchType, TeamReference } from '@/types/types'
 import { useAdminData } from '@/hooks/useAdminData'
+import css from './Match.module.css'
 
 interface MatchProps {
 	match: MatchType
@@ -38,7 +39,7 @@ const Match: React.FC<MatchProps> = ({ match, isAdmin = false, onScoreUpdate }) 
 	}
 
 	return (
-		<div className='match'>
+		<div className={css.match}>
 			<h2>
 				{homeTeamName} vs {awayTeamName}
 			</h2>
@@ -46,11 +47,20 @@ const Match: React.FC<MatchProps> = ({ match, isAdmin = false, onScoreUpdate }) 
 				{completed ? 'Completed' : 'Created'} on: {formatDate(completed ? match.completedDate || match.date : match.date)}
 			</p>
 			{isAdmin && !completed ? (
-				<>
-					<input type='number' value={homeScore} onChange={e => handleScoreUpdate('home', Number(e.target.value))} />
-					<input type='number' value={awayScore} onChange={e => handleScoreUpdate('away', Number(e.target.value))} />
-					<button onClick={handleComplete}>Complete Match</button>
-				</>
+				<div className={css.controls}>
+					<label htmlFor='homeScore'>
+						{homeTeamName}
+						<input type='number' value={homeScore} onChange={e => handleScoreUpdate('home', Number(e.target.value))} />
+					</label>
+					<p>vs</p>
+					<label htmlFor='awayScore'>
+						{awayTeamName}
+						<input type='number' value={awayScore} onChange={e => handleScoreUpdate('away', Number(e.target.value))} />
+					</label>
+					<div>
+						<button onClick={handleComplete}>Complete Match</button>
+					</div>
+				</div>
 			) : (
 				<p>
 					{completed ? 'Final' : 'Current'} Score: {homeScore} - {awayScore}

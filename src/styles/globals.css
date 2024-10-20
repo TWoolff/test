@@ -26,6 +26,29 @@ img {
 	height: auto;
 }
 
+button {
+    align-self: flex-start;
+    padding: 1rem;
+    font-size: 0.75rem;
+		font-weight: 800;
+		text-transform: uppercase;
+		background-color: var(--color-black);
+    color: var(--color-white);
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--color-grey);
+    }
+  }
+
+input[type="text"], input[type="number"], select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
 .grid {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
@@ -123,15 +146,4 @@ img {
 
 .completedMatch {
 	background-color: #f0f5f0;
-}
-
-.gifContainer {
-	margin-top: 1rem;
-	display: flex;
-	justify-content: center;
-
-	& img {
-		max-width: 100%;
-		height: auto;
-	}
 }

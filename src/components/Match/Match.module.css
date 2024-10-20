@@ -1,0 +1,23 @@
+.controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+	margin-bottom: 2rem;
+
+	& label {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+	}
+
+	& p {
+		margin: 0;
+	}
+
+	& div {
+		flex-basis: 100%;
+		margin-top: 0.5rem;
+	}
+}
