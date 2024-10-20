@@ -18,16 +18,14 @@ export const getPlayers = async (): Promise<PlayerType[]> => {
 export const getTeams = async (): Promise<TeamType[]> => {
   try {
     const querySnapshot = await getDocs(collection(db, 'teams'));
-    const players = await getPlayers();
     return querySnapshot.docs.map(doc => {
       const teamData = doc.data();
       return {
         id: doc.id,
         name: teamData.name,
         points: teamData.points || 0,
-        players: teamData.players?.map((playerId: string) => 
-          players.find(player => player.id === playerId) || { id: playerId, name: 'Unknown Player' }
-        ) || []
+        players: teamData.players || [],
+        gifUrl: teamData.gifUrl
       } as TeamType;
     });
   } catch (e) {

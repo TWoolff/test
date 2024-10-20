@@ -41,7 +41,7 @@ export type MatchData = {
 
 export type CleanTeamData = {
   name: string;
-  players?: string[];
+  players?: PlayerType[];
   points: number;
   gifUrl?: string;
   [key: string]: string | number | string[] | undefined | TeamType[] | PlayerType[];

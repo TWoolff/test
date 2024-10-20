@@ -1,12 +1,12 @@
 'use client'
 import { useState } from 'react'
-import { submitForm } from '@/services/submit'
+import { addDoc, collection } from 'firebase/firestore'
+import { db } from '@/services/firebase'
 import { uploadImage } from '@/services/uploadimage'
 import { PlayerType } from '@/types/types'
 import css from './Forms.module.css'
 
 const initialPlayerFormData = {
-	id: '',
 	name: '',
 	nickname: '',
 	profileImage: '',
@@ -34,7 +34,16 @@ const PlayerForm: React.FC = () => {
 				formData.append('file', file)
 				imageUrl = (await uploadImage(formData)) as string
 			}
-			await submitForm({ ...playerFormData, profileImage: imageUrl }, 'players')
+
+			// Add the new player to Firestore
+			const docRef = await addDoc(collection(db, 'players'), {
+				...playerFormData,
+				profileImage: imageUrl
+			})
+
+			console.log('New player added with ID: ', docRef.id)
+
+			// Reset the form
 			setPlayerFormData(initialPlayerFormData)
 			setFile(null)
 		} catch (error) {

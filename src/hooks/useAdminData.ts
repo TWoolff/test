@@ -19,14 +19,13 @@ export const useAdminData = () => {
 
 		const teamsQuery = query(collection(db, 'teams'))
 		const unsubscribeTeams = onSnapshot(teamsQuery, async snapshot => {
-			const players = await getPlayers()
 			const teamsData = snapshot.docs.map(doc => {
 				const teamData = doc.data()
 				return {
 					id: doc.id,
 					name: teamData.name,
 					points: teamData.points || 0,
-					players: teamData.players?.map((playerId: string) => players.find(player => player.id === playerId) || { id: playerId, name: 'Unknown Player' }) || [],
+					players: teamData.players || [],
 					gifUrl: teamData.gifUrl,
 				} as TeamType
 			})
@@ -68,7 +67,12 @@ export const useAdminData = () => {
 			const newTeamRef = await addDoc(teamsCollection, {
 				...cleanTeamData,
 				points: 0,
-				players: cleanTeamData.players || [],
+				players: cleanTeamData?.players?.map(player => ({
+					id: player.id,
+					name: player.name,
+					nickname: player.nickname,
+					profileImage: player.profileImage
+				})),
 				gifUrl,
 			})
 

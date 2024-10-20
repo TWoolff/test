@@ -1,10 +1,11 @@
 'use client'
-import React from 'react';
-import { TeamType } from "@/types/types";
+import { TeamType, PlayerType } from "@/types/types";
 import css from './Team.module.css';
 
 const Team: React.FC<TeamType> = ({ name, points, players }) => {
-  const playerNames = players?.map(player => player.name).join(', ') || '';
+  const playerNames = players?.map((player: PlayerType) => player.name).join(', ') || '';
+
+  console.log(players);
 
   return (
     <div className={css.team}>
