@@ -10,9 +10,11 @@ export type TeamType = {
   name: string;
   players: PlayerType[];
   points: number;
+  gifUrl?: string;
 };
 
 export type TeamReference = {
+  [x: string]: string | undefined;
   id: string;
   name: string;
 };

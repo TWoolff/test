@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { collection, onSnapshot, query, addDoc } from 'firebase/firestore'
 import { db } from '@/services/firebase'
+import { getGifForTeam } from '@/services/giphy'
 import { getPlayers, createMatchesForNewTeam, getExistingTeams, updateMatch, updateTeamPoints } from '@/services/getdata'
 import { PlayerType, TeamType, MatchType } from '@/types/types'
 
@@ -28,7 +29,8 @@ export const useAdminData = () => {
 					points: teamData.points || 0,
 					players: teamData.players?.map((playerId: string) => 
 						players.find(player => player.id === playerId) || { id: playerId, name: 'Unknown Player' }
-					) || []
+					) || [],
+					gifUrl: teamData.gifUrl
 				} as TeamType;
 			});
 			setTeams(teamsData);
@@ -49,22 +51,32 @@ export const useAdminData = () => {
 
 	const createTeam = async (teamData: Omit<TeamType, 'id'>) => {
 		try {
-			const teamsCollection = collection(db, 'teams');
+			// Check if a team with the same name already exists
+			const existingTeams = await getExistingTeams();
+			const teamExists = existingTeams.some(team => team.name.toLowerCase() === teamData.name.toLowerCase());
 			
-			// Create a new object with only defined values
+			if (teamExists) {
+				throw new Error('A team with this name already exists');
+			}
+	
+			// Fetch GIF for the team
+			const gifUrl = await getGifForTeam(teamData.name);
+	
+			const teamsCollection = collection(db, 'teams');
 			const cleanTeamData = Object.entries(teamData).reduce((acc, [key, value]) => {
 				if (value !== undefined) {
 					acc[key] = value;
 				}
 				return acc;
 			}, {} as Record<string, any>);
-
+	
 			const newTeamRef = await addDoc(teamsCollection, {
 				...cleanTeamData,
 				points: 0,
-				players: cleanTeamData.players ? cleanTeamData.players.map((player: PlayerType) => player.id) : []
+				players: cleanTeamData.players ? cleanTeamData.players.map((player: PlayerType) => player.id) : [],
+				gifUrl // Add the GIF URL to the team data
 			});
-			const existingTeams = await getExistingTeams();
+	
 			const existingTeamIds = existingTeams.map(team => team.id).filter(id => id !== newTeamRef.id);
 			await createMatchesForNewTeam(newTeamRef.id, cleanTeamData.name, existingTeamIds);
 			return newTeamRef.id;

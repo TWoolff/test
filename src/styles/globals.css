@@ -112,3 +112,14 @@ img {
 .completedMatch {
 	background-color: #f0f5f0;
 }
+
+.gifContainer {
+	margin-top: 1rem;
+	display: flex;
+	justify-content: center;
+
+	& img {
+		max-width: 100%;
+		height: auto;
+	}
+}
