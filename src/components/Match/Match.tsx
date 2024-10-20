@@ -1,6 +1,6 @@
 import React from 'react'
 import { MatchType, TeamReference } from '@/types/types'
-import { useAdminData } from '@/hooks/useAdminData'
+import { useMatchData } from '@/hooks/useAdminData'
 import css from './Match.module.css'
 
 interface MatchProps {
@@ -10,7 +10,6 @@ interface MatchProps {
 }
 
 const Match: React.FC<MatchProps> = ({ match, isAdmin = false, onScoreUpdate }) => {
-	const { useMatchData } = useAdminData()
 	const { homeScore, awayScore, completed, handleScoreChange, handleComplete } = useMatchData(match)
 
 	const handleScoreUpdate = (team: 'home' | 'away', newScore: number) => {

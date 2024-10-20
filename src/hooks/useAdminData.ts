@@ -59,39 +59,39 @@ export const useAdminData = () => {
 		}
 	}, [])
 
-	const useMatchData = useCallback((match: MatchType) => {
-		const [homeScore, setHomeScore] = useState<number>(match.homeScore)
-		const [awayScore, setAwayScore] = useState<number>(match.awayScore)
-		const [completed, setCompleted] = useState<boolean>(match.completed)
+	return { players, teams, matches, createTeam }
+}
 
-		const handleScoreChange = useCallback(
-			async (team: 'home' | 'away', score: number) => {
-				if (completed) return
+export const useMatchData = (match: MatchType) => {
+	const [homeScore, setHomeScore] = useState<number>(match.homeScore)
+	const [awayScore, setAwayScore] = useState<number>(match.awayScore)
+	const [completed, setCompleted] = useState<boolean>(match.completed)
 
-				const newScore = Math.max(0, score)
-				const scoreState = team === 'home' ? setHomeScore : setAwayScore
-				scoreState(newScore)
-
-				await updateMatch(match.id, { [`${team}Score`]: newScore })
-			},
-			[completed, match.id]
-		)
-
-		const handleComplete = useCallback(async () => {
+	const handleScoreChange = useCallback(
+		async (team: 'home' | 'away', score: number) => {
 			if (completed) return
 
-			setCompleted(true)
-			await updateMatch(match.id, {
-				completed: true,
-				homeScore,
-				awayScore,
-				completedDate: new Date().toISOString(),
-			})
-			await updateTeamPoints()
-		}, [completed, match.id, homeScore, awayScore])
+			const newScore = Math.max(0, score)
+			const scoreState = team === 'home' ? setHomeScore : setAwayScore
+			scoreState(newScore)
 
-		return { homeScore, awayScore, completed, handleScoreChange, handleComplete }
-	}, [])
+			await updateMatch(match.id, { [`${team}Score`]: newScore })
+		},
+		[completed, match.id]
+	)
 
-	return { players, teams, matches, createTeam, useMatchData }
+	const handleComplete = useCallback(async () => {
+		if (completed) return
+
+		setCompleted(true)
+		await updateMatch(match.id, {
+			completed: true,
+			homeScore,
+			awayScore,
+			completedDate: new Date().toISOString(),
+		})
+		await updateTeamPoints()
+	}, [completed, match.id, homeScore, awayScore])
+
+	return { homeScore, awayScore, completed, handleScoreChange, handleComplete }
 }
