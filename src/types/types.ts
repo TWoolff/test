@@ -1,3 +1,5 @@
+export type FormData = Record<string, unknown>;
+
 export type PlayerType = {
   id: string;
   name: string;
@@ -36,3 +38,11 @@ export type MatchData = {
   date: string;
   completed: boolean;
 }
+
+export type CleanTeamData = {
+  name: string;
+  players?: string[];
+  points: number;
+  gifUrl?: string;
+  [key: string]: string | number | string[] | undefined | TeamType[] | PlayerType[];
+};

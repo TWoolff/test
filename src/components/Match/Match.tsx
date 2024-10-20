@@ -1,5 +1,5 @@
 import React from 'react'
-import { MatchType } from '@/types/types'
+import { MatchType, TeamReference } from '@/types/types'
 import { useAdminData } from '@/hooks/useAdminData'
 
 interface MatchProps {
@@ -19,15 +19,8 @@ const Match: React.FC<MatchProps> = ({ match, isAdmin = false, onScoreUpdate }) 
 		}
 	}
 
-	const getTeamName = (team: any): string => {
-		if (typeof team === 'object' && team !== null) {
-			if (team.name && typeof team.name === 'string') {
-				return team.name
-			} else if (team.name && team.name.name && typeof team.name.name === 'string') {
-				return team.name.name
-			}
-		}
-		return 'Unknown Team'
+	const getTeamName = (team: TeamReference): string => {
+		return team.name || 'Unknown Team'
 	}
 
 	const homeTeamName = getTeamName(match.homeTeam)
