@@ -26,7 +26,7 @@ const RootLayout: React.FC<{children?: React.ReactNode}> = ({children}) => {
     <html lang='en'>
       <body>
         <Header />
-          <main className='grid'>
+          <main>
             {children}
           </main>
       </body>

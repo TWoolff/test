@@ -4,13 +4,35 @@
   border-bottom: 1px solid var(--color-black);
   margin: 0 0 10px;
   padding: 0;
-  
-  & h2 {
-    cursor: pointer;
-  }
 
+  @media (min-width: 768px) {
+    grid-column: 7 / -1;
+  }
+  
   & summary {
     list-style: none;
     margin-bottom: 1rem;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  & h2 {
+    margin: 0;
+  }
+
+  & .arrow {
+    transition: transform 0.3s ease;
+
+    & svg {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+
+  &.open .arrow {
+    transform: rotate(180deg);
   }
 }

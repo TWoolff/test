@@ -17,55 +17,58 @@ const Admin: React.FC = () => {
 	const sortedTeams = sortTeams(teams)
 
 	const { activeMatches, completedMatches } = useMemo(() => {
-		const active: MatchType[] = [];
-		const completed: MatchType[] = [];
+		const active: MatchType[] = []
+		const completed: MatchType[] = []
 
 		matches.forEach(match => {
 			if (match.completed) {
-				completed.push(match);
+				completed.push(match)
 			} else {
-				active.push(match);
+				active.push(match)
 			}
-		});
+		})
 
 		return {
 			activeMatches: active.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-			completedMatches: completed.sort((a, b) => new Date(b.completedDate || b.date).getTime() - new Date(a.completedDate || a.date).getTime())
-		};
-	}, [matches]);
+			completedMatches: completed.sort((a, b) => new Date(b.completedDate || b.date).getTime() - new Date(a.completedDate || a.date).getTime()),
+		}
+	}, [matches])
+
+	const activeMatchesContent = (
+		<div className={css.activeMatches}>
+			{activeMatches.map((match: MatchType, i: number) => (
+				<Match key={`active-match-${i}`} match={match} isAdmin={true} />
+			))}
+		</div>
+	)
 
 	return (
 		<section className='grid space'>
-      <h1>Admin</h1>
-      <Accordion title='Add player' content={<PlayerForm />} />
-      <Accordion title='Add team' content={<TeamForm players={players} />} />
-      <div className={css.adminInfo}>
-        <div>
-          <h2>Active Matches</h2>
-          {activeMatches.map((match: MatchType, i: number) => (
-            <Match key={`active-match-${i}`} match={match} isAdmin={true} />
-          ))}
-        </div>
-        <div>
-          <h2>Players</h2>
-          {players.map(renderPlayer)}
-        </div>
-        <div>
-          <h2>Teams</h2>
-          {sortedTeams.map((team: TeamType, i: number) => (
-            <div key={`team-${i}`}>
-              <Team name={team.name} points={team.points} players={team.players} id={team.id} />
-            </div>
-          ))}
-        </div>
-        <div>
-          <h2>Completed Matches</h2>
-          {completedMatches.map((match: MatchType, i: number) => (
-            <Match key={`completed-match-${i}`} match={match} isAdmin={false} />
-          ))}
-        </div>
-      </div>
-    </section>
+			<h1 className={css.adminTitle}>Admin</h1>
+			<div className={css.accordionsColumn}>
+				<Accordion title='Add player' content={<PlayerForm />} />
+				<Accordion title='Add team' content={<TeamForm players={players} />} />
+				<Accordion title='Add score' content={activeMatchesContent} />
+			</div>
+			<div className={css.infoColumn}>
+				<h2>Players</h2>
+				<div className={css.players}>{players.map(renderPlayer)}</div>
+				<h2>Teams</h2>
+				<div className={css.teams}>
+					{sortedTeams.map((team: TeamType, i: number) => (
+						<div key={`team-${i}`}>
+							<Team name={team.name} points={team.points} players={team.players} id={team.id} />
+						</div>
+					))}
+				</div>
+				<h2>Completed Matches</h2>
+				<div className={css.completedMatches}>
+					{completedMatches.map((match: MatchType, i: number) => (
+						<Match key={`completed-match-${i}`} match={match} isAdmin={false} />
+					))}
+				</div>
+			</div>
+		</section>
 	)
 }
 
