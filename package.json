@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cloudinary": "^2.5.1",
     "dotenv": "^16.4.5",
     "firebase": "^10.14.1",
     "framer-motion": "^11.11.9",
