@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { collection, onSnapshot, query, addDoc } from 'firebase/firestore'
+import { collection, onSnapshot, query, addDoc, getDocs } from 'firebase/firestore'
 import { db } from '@/services/firebase'
-import { getPlayers, createMatchesForNewTeam, getExistingTeams, updateMatch, updateTeamPoints } from '@/services/getdata'
+import { createMatchesForNewTeam, updateMatch, updateTeamPoints } from '@/services/getdata'
 import { getGifForTeam } from '@/services/giphy'
 import { PlayerType, TeamType, MatchType, CleanTeamData } from '@/types/types'
 
@@ -11,81 +11,55 @@ export const useAdminData = () => {
 	const [matches, setMatches] = useState<MatchType[]>([])
 
 	useEffect(() => {
-		const playersQuery = query(collection(db, 'players'))
-		const unsubscribePlayers = onSnapshot(playersQuery, snapshot => {
-			const playersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PlayerType))
-			setPlayers(playersData)
-		})
-
-		const teamsQuery = query(collection(db, 'teams'))
-		const unsubscribeTeams = onSnapshot(teamsQuery, async snapshot => {
-			const teamsData = snapshot.docs.map(doc => {
-				const teamData = doc.data()
-				return {
-					id: doc.id,
-					name: teamData.name,
-					points: teamData.points || 0,
-					players: teamData.players || [],
-					gifUrl: teamData.gifUrl,
-				} as TeamType
+		const unsubscribers = ['players', 'teams', 'matches'].map(collectionName => {
+			const collectionQuery = query(collection(db, collectionName))
+			return onSnapshot(collectionQuery, snapshot => {
+				const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+				switch (collectionName) {
+					case 'players':
+						setPlayers(data as PlayerType[])
+						break
+					case 'teams':
+						setTeams(data as TeamType[])
+						break
+					case 'matches':
+						setMatches(data as MatchType[])
+						break
+				}
 			})
-			setTeams(teamsData)
 		})
 
-		const matchesQuery = query(collection(db, 'matches'))
-		const unsubscribeMatches = onSnapshot(matchesQuery, snapshot => {
-			const matchesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MatchType))
-			setMatches(matchesData)
-		})
-
-		return () => {
-			unsubscribePlayers()
-			unsubscribeTeams()
-			unsubscribeMatches()
-		}
+		return () => unsubscribers.forEach(unsubscribe => unsubscribe())
 	}, [])
 
-	const createTeam = async (teamData: Omit<TeamType, 'id'>) => {
+	const createTeam = useCallback(async (teamData: Omit<TeamType, 'id'>) => {
 		try {
-			const existingTeams = await getExistingTeams()
-			const teamExists = existingTeams.some(team => team.name.toLowerCase() === teamData.name.toLowerCase())
+			const teamsSnapshot = await getDocs(collection(db, 'teams'))
+			const teamExists = teamsSnapshot.docs.some(doc => doc.data().name.toLowerCase() === teamData.name.toLowerCase())
 
 			if (teamExists) {
 				throw new Error('A team with this name already exists')
 			}
 
 			const gifUrl = await getGifForTeam(teamData.name)
-			const teamsCollection = collection(db, 'teams')
-
-			const cleanTeamData = Object.entries(teamData).reduce((acc, [key, value]) => {
-				if (value !== undefined) {
-					acc[key] = value
-				}
-				return acc
-			}, {} as CleanTeamData)
-
-			const newTeamRef = await addDoc(teamsCollection, {
-				...cleanTeamData,
+			const cleanTeamData: CleanTeamData = {
+				name: teamData.name,
 				points: 0,
-				players: cleanTeamData?.players?.map(player => ({
-					id: player.id,
-					name: player.name,
-					nickname: player.nickname,
-					profileImage: player.profileImage
-				})),
-				gifUrl,
-			})
+				players: teamData.players,
+				gifUrl: gifUrl ?? undefined,
+			}
 
-			const existingTeamIds = existingTeams.map(team => team.id).filter(id => id !== newTeamRef.id)
+			const newTeamRef = await addDoc(collection(db, 'teams'), cleanTeamData)
+			const existingTeamIds = teamsSnapshot.docs.map(doc => doc.id).filter(id => id !== newTeamRef.id)
 			await createMatchesForNewTeam(newTeamRef.id, cleanTeamData.name, existingTeamIds)
 			return newTeamRef.id
 		} catch (error) {
 			console.error('Error creating team: ', error)
 			throw error
 		}
-	}
+	}, [])
 
-	const useMatchData = (match: MatchType) => {
+	const useMatchData = useCallback((match: MatchType) => {
 		const [homeScore, setHomeScore] = useState<number>(match.homeScore)
 		const [awayScore, setAwayScore] = useState<number>(match.awayScore)
 		const [completed, setCompleted] = useState<boolean>(match.completed)
@@ -94,17 +68,9 @@ export const useAdminData = () => {
 			async (team: 'home' | 'away', score: number) => {
 				if (completed) return
 
-				const newScore = score >= 0 ? score : 0
-				if (team === 'home') {
-					setHomeScore(newScore)
-				} else {
-					setAwayScore(newScore)
-				}
-
-				if (typeof match.id !== 'string') {
-					console.error('Invalid match ID:', match.id)
-					return
-				}
+				const newScore = Math.max(0, score)
+				const scoreState = team === 'home' ? setHomeScore : setAwayScore
+				scoreState(newScore)
 
 				await updateMatch(match.id, { [`${team}Score`]: newScore })
 			},
@@ -114,19 +80,18 @@ export const useAdminData = () => {
 		const handleComplete = useCallback(async () => {
 			if (completed) return
 
-			const completedDate = new Date().toISOString()
 			setCompleted(true)
 			await updateMatch(match.id, {
 				completed: true,
 				homeScore,
 				awayScore,
-				completedDate,
+				completedDate: new Date().toISOString(),
 			})
 			await updateTeamPoints()
 		}, [completed, match.id, homeScore, awayScore])
 
 		return { homeScore, awayScore, completed, handleScoreChange, handleComplete }
-	}
+	}, [])
 
 	return { players, teams, matches, createTeam, useMatchData }
 }

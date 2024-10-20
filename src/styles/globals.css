@@ -147,3 +147,13 @@ input[type="text"], input[type="number"], select {
 .completedMatch {
 	background-color: #f0f5f0;
 }
+
+.playerList {
+  font-size: 0.8em;
+  font-weight: normal;
+  margin-top: 5px;
+}
+
+.player {
+  margin-bottom: 2px;
+}

@@ -109,7 +109,14 @@ const Scoreboard: React.FC = () => {
 						<tr>
 							<th></th>
 							{teams.map(team => (
-								<th key={team.id}>{team.name}</th>
+								<th key={team.id}>
+									{team.name}
+									<div className="playerList">
+										{team.players.map(player => (
+											<div key={player.id} className="player">{player.name}</div>
+										))}
+									</div>
+								</th>
 							))}
 						</tr>
 					</thead>

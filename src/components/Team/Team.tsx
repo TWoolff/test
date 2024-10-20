@@ -5,8 +5,6 @@ import css from './Team.module.css';
 const Team: React.FC<TeamType> = ({ name, points, players }) => {
   const playerNames = players?.map((player: PlayerType) => player.name).join(', ') || '';
 
-  console.log(players);
-
   return (
     <div className={css.team}>
       <h3>{name}</h3>
