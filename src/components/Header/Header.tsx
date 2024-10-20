@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import css from './Header.module.css';
+import Link from 'next/link'
+import css from './Header.module.css'
 
 const Header: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ const Header: React.FC = () => {
         </ul>
       </nav>
     </header>
-  );
-};
+	)
+}
 
-export default Header;
+export default Header

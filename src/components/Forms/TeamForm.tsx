@@ -1,10 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { PlayerType } from '@/types/types'
 import { useAdminData } from '@/hooks/useAdminData'
 import css from './Forms.module.css'
 
-interface TeamFormProps {
+type TeamFormProps = {
 	players: PlayerType[]
 }
 

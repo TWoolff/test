@@ -38,7 +38,7 @@ const PlayerForm: React.FC = () => {
 			// Add the new player to Firestore
 			const docRef = await addDoc(collection(db, 'players'), {
 				...playerFormData,
-				profileImage: imageUrl
+				profileImage: imageUrl,
 			})
 
 			console.log('New player added with ID: ', docRef.id)
@@ -53,32 +53,11 @@ const PlayerForm: React.FC = () => {
 
 	return (
 		<form onSubmit={handleSubmit} className={css.playerForm}>
-			<input 
-				type='text' 
-				name='name' 
-				placeholder='Player Name' 
-				value={playerFormData.name} 
-				onChange={handlePlayerInputChange} 
-				required 
-			/>
-			<input 
-				type='text' 
-				name='nickname' 
-				placeholder='Nickname (optional)' 
-				value={playerFormData.nickname} 
-				onChange={handlePlayerInputChange} 
-			/>
+			<input type='text' name='name' placeholder='Player Name' value={playerFormData.name} onChange={handlePlayerInputChange} required />
+			<input type='text' name='nickname' placeholder='Nickname (optional)' value={playerFormData.nickname} onChange={handlePlayerInputChange} />
 			<div className={css.fileInputWrapper}>
-				<input 
-					type='file' 
-					name='profileImage' 
-					id='profileImage'
-					onChange={handlePlayerInputChange} 
-					accept="image/*"
-				/>
-				<label htmlFor='profileImage'>
-					{file ? file.name : 'Choose Mug Shot'}
-				</label>
+				<input type='file' name='profileImage' id='profileImage' onChange={handlePlayerInputChange} accept='image/*' />
+				<label htmlFor='profileImage'>{file ? file.name : 'Choose Mug Shot'}</label>
 			</div>
 			<button type='submit'>Add Player</button>
 		</form>

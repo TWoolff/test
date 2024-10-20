@@ -3,8 +3,8 @@ import { useMemo, useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useAdminData } from '@/hooks/useAdminData'
 import { MatchType, MatchData } from '@/types/types'
-import Modal from '@/components/Modal/Modal'
 import { IconScore } from '@/components/Icons/Icons'
+import Modal from '@/components/Modal/Modal'
 
 const Scoreboard: React.FC = () => {
 	const { matches, teams } = useAdminData()
@@ -154,7 +154,7 @@ const Scoreboard: React.FC = () => {
 						<p>{modalContent.scoringTeam} {modalContent.completed ? "is the winner!" : "is currently leading!"}</p>
 						{modalContent.scoringTeamGif && (
 							<div className='gifContainer'>
-								<Image src={modalContent.scoringTeamGif} alt={`${modalContent.scoringTeam} celebration`} width={200} height={200} />
+								<Image src={modalContent.scoringTeamGif} alt={`${modalContent.scoringTeam} celebration`} width={200} height={200} unoptimized/>
 							</div>
 						)}
 						{modalContent.completed && (

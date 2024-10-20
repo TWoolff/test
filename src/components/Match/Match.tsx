@@ -1,9 +1,8 @@
-import React from 'react'
-import { MatchType, TeamReference } from '@/types/types'
 import { useMatchData } from '@/hooks/useAdminData'
+import { MatchType, TeamReference } from '@/types/types'
 import css from './Match.module.css'
 
-interface MatchProps {
+type MatchProps = {
 	match: MatchType
 	isAdmin?: boolean
 	onScoreUpdate?: (match: MatchType, team: 'home' | 'away', newScore: number) => void

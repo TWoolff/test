@@ -11,10 +11,12 @@ export const useAdminData = () => {
 	const [matches, setMatches] = useState<MatchType[]>([])
 
 	useEffect(() => {
+		// Set up real-time listeners for players, teams, and matches collections
 		const unsubscribers = ['players', 'teams', 'matches'].map(collectionName => {
 			const collectionQuery = query(collection(db, collectionName))
 			return onSnapshot(collectionQuery, snapshot => {
 				const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+				// Update the corresponding state based on the collection name
 				switch (collectionName) {
 					case 'players':
 						setPlayers(data as PlayerType[])
@@ -29,11 +31,13 @@ export const useAdminData = () => {
 			})
 		})
 
+		// Clean up listeners on component unmount
 		return () => unsubscribers.forEach(unsubscribe => unsubscribe())
 	}, [])
 
 	const createTeam = useCallback(async (teamData: Omit<TeamType, 'id'>) => {
 		try {
+			// Check if a team with the same name already exists
 			const teamsSnapshot = await getDocs(collection(db, 'teams'))
 			const teamExists = teamsSnapshot.docs.some(doc => doc.data().name.toLowerCase() === teamData.name.toLowerCase())
 
@@ -42,6 +46,8 @@ export const useAdminData = () => {
 			}
 
 			const gifUrl = await getGifForTeam(teamData.name)
+			
+			// Prepare clean team data for Firestore
 			const cleanTeamData: CleanTeamData = {
 				name: teamData.name,
 				points: 0,
@@ -49,9 +55,13 @@ export const useAdminData = () => {
 				gifUrl: gifUrl ?? undefined,
 			}
 
+			// Add the new team to Firestore
 			const newTeamRef = await addDoc(collection(db, 'teams'), cleanTeamData)
+			
+			// Create matches for the new team against existing teams
 			const existingTeamIds = teamsSnapshot.docs.map(doc => doc.id).filter(id => id !== newTeamRef.id)
 			await createMatchesForNewTeam(newTeamRef.id, cleanTeamData.name, existingTeamIds)
+			
 			return newTeamRef.id
 		} catch (error) {
 			console.error('Error creating team: ', error)
@@ -59,6 +69,7 @@ export const useAdminData = () => {
 		}
 	}, [])
 
+	// Return the state and functions for use in components
 	return { players, teams, matches, createTeam }
 }
 
