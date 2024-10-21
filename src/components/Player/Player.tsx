@@ -9,7 +9,7 @@ const Player: React.FC<PlayerType> = ({ name, nickname, profileImage }) => {
 		<div className={css.player}>
 			{profileImage ? <CldImage src={profileImage} width='60' height='60' crop='fill' alt={`Profile of ${name}`} /> : <IconProfile />}
 			<h3>
-				{name} aka {nickname}
+				{name} {nickname && `aka ${nickname}`}
 			</h3>
 		</div>
 	)
