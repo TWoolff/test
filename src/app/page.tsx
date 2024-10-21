@@ -2,28 +2,28 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useAdminData } from '@/hooks/useAdminData'
-import { MatchType, MatchData } from '@/types/types'
-import { IconScore } from '@/components/Icons/Icons'
+import { MatchType, MatchesTable } from '@/types/types'
 import Modal from '@/components/Modal/Modal'
+import Scoreboard from '@/components/Scoreboard/Scoreboard'
 
-const Scoreboard: React.FC = () => {
+const ScoreboardPage: React.FC = () => {
 	const { matches, teams } = useAdminData()
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [modalContent, setModalContent] = useState<{
 		homeTeam: string
-		awayTeam: string
-		homeScore: number
-		awayScore: number
-		scoringTeam: string
-		scoringTeamGif?: string
-		completed?: boolean
+			awayTeam: string
+			homeScore: number
+			awayScore: number
+			scoringTeam: string
+			scoringTeamGif?: string
+			completed?: boolean
 	} | null>(null)
 
 	const prevMatchesRef = useRef<MatchType[]>([])
 	const modalTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-	const matchesTable = useMemo(() => {
-		const table: { [key: string]: { [key: string]: MatchData } } = {}
+	const matchesTable = useMemo<MatchesTable>(() => {
+		const table: MatchesTable = {}
 
 		teams.forEach(team => {
 			table[team.id] = {}
@@ -44,18 +44,12 @@ const Scoreboard: React.FC = () => {
 				table[homeId] = {}
 			}
 
-			if (!table[homeId][awayId]) {
-				table[homeId][awayId] = { score: '-', date: '', completed: false }
-			}
-
 			table[homeId][awayId] = { score, date, completed: match.completed }
 
 			if (!table[awayId]) {
 				table[awayId] = {}
 			}
-			if (!table[awayId][homeId]) {
-				table[awayId][homeId] = { score: '-', date: '', completed: false }
-			}
+			table[awayId][homeId] = { score: `${match.awayScore} - ${match.homeScore}`, date, completed: match.completed }
 			table[awayId][homeId] = { score: `${match.awayScore} - ${match.homeScore}`, date, completed: match.completed }
 		})
 
@@ -101,46 +95,8 @@ const Scoreboard: React.FC = () => {
 	}, [matches, teams])
 
 	return (
-		<section className='grid space frontpage'>
-			<h1><IconScore /> Scoreboard</h1>
-			<div className='tableWrapper'>
-				<table className='scoreboardTable'>
-					<thead>
-						<tr>
-							<th></th>
-							{teams.map(team => (
-								<th key={team.id}>
-									{team.name}
-									<div className="playerList">
-										{team.players.map(player => (
-											<div key={player.id} className="player">{player.name}</div>
-										))}
-									</div>
-								</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{teams.map(rowTeam => (
-							<tr key={rowTeam.id}>
-								<th>{rowTeam.name}</th>
-								{teams.map(colTeam => {
-									if (rowTeam.id === colTeam.id) {
-										return <td key={colTeam.id} className='diagonalCell'></td>
-									}
-									const match = matchesTable[rowTeam.id][colTeam.id]
-									return (
-										<td key={colTeam.id} className={match.completed ? 'completedMatch' : 'activeMatch'}>
-											<div>{match.score}</div>
-											<div>{match.date}</div>
-										</td>
-									)
-								})}
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
+		<section className='grid space'>
+			<Scoreboard teams={teams} matchesTable={matchesTable} />
 			<Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
 				{modalContent && (
 					<>
@@ -167,4 +123,4 @@ const Scoreboard: React.FC = () => {
 	)
 }
 
-export default Scoreboard
+export default ScoreboardPage

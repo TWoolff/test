@@ -36,6 +36,12 @@ export type MatchData = {
 	completed: boolean
 }
 
+export type MatchesTable = {
+  [homeTeamId: string]: {
+    [awayTeamId: string]: MatchData
+  }
+}
+
 export type CleanTeamData = {
 	name: string
 	players?: PlayerType[]

@@ -1,5 +1,6 @@
 'use client'
 import { useMemo } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useAdminData } from '@/hooks/useAdminData'
 import { sortTeams } from '@/utils/sorting'
@@ -34,7 +35,7 @@ const Leaderboard: React.FC = () => {
 							<span className={css.teamName}>{team.name}</span>
 						</div>
 						<div className={css.playerImages}>
-							{team.players.map((player, i) => (player.profileImage ? <img key={i} src={player.profileImage} alt={`${player.name}'s profile`} className={css.profileImage} /> : <IconProfile key={i} />))}
+							{team.players.map((player, i) => (player.profileImage ? <Image key={i} src={player.profileImage} width={30} height={30} alt={`${player.name}'s profile image`} className={css.profileImage} /> : <IconProfile key={i} />))}
 						</div>
 					</div>
 				))}

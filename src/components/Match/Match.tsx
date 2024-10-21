@@ -48,12 +48,12 @@ const Match: React.FC<MatchProps> = ({ match, isAdmin = false, onScoreUpdate }) 
 				<div className={css.controls}>
 					<label htmlFor='homeScore'>
 						{homeTeamName}
-						<input type='number' value={homeScore} onChange={e => handleScoreUpdate('home', Number(e.target.value))} />
+						<input id='homeScore' type='number' value={homeScore} onChange={e => handleScoreUpdate('home', Number(e.target.value))} />
 					</label>
 					<p>vs</p>
 					<label htmlFor='awayScore'>
 						{awayTeamName}
-						<input type='number' value={awayScore} onChange={e => handleScoreUpdate('away', Number(e.target.value))} />
+						<input id='awayScore' type='number' value={awayScore} onChange={e => handleScoreUpdate('away', Number(e.target.value))} />
 					</label>
 					<div>
 						<button onClick={handleComplete}>Complete Match</button>

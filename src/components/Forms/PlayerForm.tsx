@@ -35,13 +35,17 @@ const PlayerForm: React.FC = () => {
 				imageUrl = (await uploadImage(formData)) as string
 			}
 
-			const docRef = await addDoc(collection(db, 'players'), {
+			const newPlayer = {
 				...playerFormData,
 				profileImage: imageUrl,
-			})
+			}
+
+			const docRef = await addDoc(collection(db, 'players'), newPlayer)
+			console.log("New player added with ID: ", docRef.id)
 
 			setPlayerFormData(initialPlayerFormData)
 			setFile(null)
+
 		} catch (error) {
 			console.error('Error submitting player:', error)
 		}
