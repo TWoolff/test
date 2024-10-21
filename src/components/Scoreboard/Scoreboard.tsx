@@ -1,6 +1,6 @@
 import { IconScore } from '../Icons/Icons'
-import css from './Scoreboard.module.css'
 import { TeamType, MatchesTable } from '@/types/types'
+import css from './Scoreboard.module.css'
 
 type ScoreboardProps = {
 	teams: TeamType[]

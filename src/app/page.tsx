@@ -3,8 +3,8 @@ import { useMemo, useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useAdminData } from '@/hooks/useAdminData'
 import { MatchType, MatchesTable } from '@/types/types'
-import Modal from '@/components/Modal/Modal'
 import Scoreboard from '@/components/Scoreboard/Scoreboard'
+import Modal from '@/components/Modal/Modal'
 
 const ScoreboardPage: React.FC = () => {
 	const { matches, teams } = useAdminData()
