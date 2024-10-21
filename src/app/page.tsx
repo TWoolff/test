@@ -11,12 +11,12 @@ const ScoreboardPage: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [modalContent, setModalContent] = useState<{
 		homeTeam: string
-			awayTeam: string
-			homeScore: number
-			awayScore: number
-			scoringTeam: string
-			scoringTeamGif?: string
-			completed?: boolean
+		awayTeam: string
+		homeScore: number
+		awayScore: number
+		scoringTeam: string
+		scoringTeamGif?: string
+		completed?: boolean
 	} | null>(null)
 
 	const prevMatchesRef = useRef<MatchType[]>([])
@@ -100,22 +100,22 @@ const ScoreboardPage: React.FC = () => {
 			<Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
 				{modalContent && (
 					<>
-						<h1>{modalContent.completed ? "MATCH WINNER!" : "SCORE!"}</h1>
+						<h1>{modalContent.completed ? 'MATCH WINNER!' : 'SCORE!'}</h1>
 						<h2>
 							{modalContent.homeTeam} vs {modalContent.awayTeam}
 						</h2>
 						<p>
 							Score: {modalContent.homeScore} - {modalContent.awayScore}
 						</p>
-						<p>{modalContent.scoringTeam} {modalContent.completed ? "is the winner!" : "is currently leading!"}</p>
+						<p>
+							{modalContent.scoringTeam} {modalContent.completed ? 'is the winner!' : 'is currently leading!'}
+						</p>
 						{modalContent.scoringTeamGif && (
 							<div className='gifContainer'>
-								<Image src={modalContent.scoringTeamGif} alt={`${modalContent.scoringTeam} celebration`} width={200} height={200} unoptimized/>
+								<Image src={modalContent.scoringTeamGif} alt={`${modalContent.scoringTeam} celebration`} width={200} height={200} unoptimized />
 							</div>
 						)}
-						{modalContent.completed && (
-							<p>Match completed!</p>
-						)}
+						{modalContent.completed && <p>Match completed!</p>}
 					</>
 				)}
 			</Modal>

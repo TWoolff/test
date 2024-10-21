@@ -17,12 +17,13 @@ const Leaderboard: React.FC = () => {
 
 	return (
 		<section className={`${css.leaderboard} grid space`}>
+			{teams.length === 0 && <p style={{ gridColumn: '1 / -1' }}>Add teams to start</p>}
 			<h1>
 				<IconLeader /> Leaderboard
 			</h1>
 			<div className={css.chartContainer}>
 				{sortedTeams.map((team, index) => (
-					<div key={team.id} className={css.barContainer} style={{borderBottom: `2px solid ${teamColors[team.id]}`}}>
+					<div key={team.id} className={css.barContainer} style={{ borderBottom: `2px solid ${teamColors[team.id]}` }}>
 						<span className={css.score}>{team.points}</span>
 						<motion.div
 							className={css.bar}
@@ -35,7 +36,9 @@ const Leaderboard: React.FC = () => {
 							<span className={css.teamName}>{team.name}</span>
 						</div>
 						<div className={css.playerImages}>
-							{team.players.map((player, i) => (player.profileImage ? <Image key={i} src={player.profileImage} width={30} height={30} alt={`${player.name}'s profile image`} className={css.profileImage} /> : <IconProfile key={i} />))}
+							{team.players.map((player, i) =>
+								player.profileImage ? <Image key={i} src={player.profileImage} width={30} height={30} alt={`${player.name}'s profile image`} className={css.profileImage} /> : <IconProfile key={i} />
+							)}
 						</div>
 					</div>
 				))}
