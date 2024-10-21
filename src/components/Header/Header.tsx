@@ -9,7 +9,6 @@ const Header: React.FC = () => {
         <ul>
           <li><Link href="/">Scoreboard</Link></li>
           <li><Link href="/leaderboard">Leaderboard</Link></li>
-          <li><Link href="/admin">Admin</Link></li>
         </ul>
       </nav>
     </header>
