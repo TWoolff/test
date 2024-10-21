@@ -1,26 +1,41 @@
 'use client'
 import { useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { useAdminData } from '@/hooks/useAdminData'
-import { sortTeams } from '@/utils/sortingUtils'
-import { IconLeader } from '@/components/Icons/Icons'
-import Team from '@/components/Team/Team'
+import { sortTeams } from '@/utils/sorting'
+import { getRandomColor } from '@/utils/randomColor'
+import { IconLeader, IconProfile } from '@/components/Icons/Icons'
+import { TeamColors } from '@/types/types'
+import css from './Leaderboard.module.css'
 
 const Leaderboard: React.FC = () => {
 	const { teams } = useAdminData()
 	const sortedTeams = useMemo(() => sortTeams(teams), [teams])
+	const maxScore = useMemo(() => Math.max(...sortedTeams.map(team => team.points)), [sortedTeams])
+	const teamColors = useMemo<TeamColors>(() => sortedTeams.reduce((acc, team) => ({ ...acc, [team.id]: getRandomColor() }), {}), [sortedTeams])
 
 	return (
-		<section className='grid space frontpage'>
+		<section className={`${css.leaderboard} grid space`}>
 			<h1>
 				<IconLeader /> Leaderboard
 			</h1>
-			<div>
+			<div className={css.chartContainer}>
 				{sortedTeams.map((team, index) => (
-					<div key={team.id}>
-						<h2>
-							{index + 1}. {team.name} - {team.points} points
-						</h2>
-						<Team {...team} />
+					<div key={team.id} className={css.barContainer} style={{borderBottom: `2px solid ${teamColors[team.id]}`}}>
+						<span className={css.score}>{team.points}</span>
+						<motion.div
+							className={css.bar}
+							initial={{ height: 0 }}
+							animate={{ height: `${(team.points / maxScore) * 100}%` }}
+							transition={{ duration: 0.5, delay: index * 0.1 }}
+							style={{ backgroundColor: teamColors[team.id] }}
+						/>
+						<div className={css.teamInfo}>
+							<span className={css.teamName}>{team.name}</span>
+						</div>
+						<div className={css.playerImages}>
+							{team.players.map((player, i) => (player.profileImage ? <img key={i} src={player.profileImage} alt={`${player.name}'s profile`} className={css.profileImage} /> : <IconProfile key={i} />))}
+						</div>
 					</div>
 				))}
 			</div>

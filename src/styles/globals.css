@@ -27,27 +27,29 @@ img {
 }
 
 button {
-    align-self: flex-start;
-    padding: 1rem;
-    font-size: 0.75rem;
-		font-weight: 800;
-		text-transform: uppercase;
-		background-color: var(--color-black);
-    color: var(--color-white);
-    border: none;
-    cursor: pointer;
+	align-self: flex-start;
+	padding: 1rem;
+	font-size: 0.75rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	background-color: var(--color-black);
+	color: var(--color-white);
+	border: none;
+	cursor: pointer;
 
-    &:hover {
-      background-color: var(--color-grey);
-    }
-  }
+	&:hover {
+		background-color: var(--color-grey);
+	}
+}
 
-input[type="text"], input[type="number"], select {
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
+input[type='text'],
+input[type='number'],
+select {
+	padding: 0.5rem;
+	font-size: 1rem;
+	border: 1px solid var(--color-grey);
+	border-radius: 4px;
+}
 
 .grid {
 	display: grid;
@@ -70,7 +72,7 @@ input[type="text"], input[type="number"], select {
 
 .frontpage {
 	& h1,
-  & div,
+	& div,
 	& .tableWrapper {
 		grid-column: 1 / -1;
 	}
@@ -149,11 +151,11 @@ input[type="text"], input[type="number"], select {
 }
 
 .playerList {
-  font-size: 0.8em;
-  font-weight: normal;
-  margin-top: 5px;
+	font-size: 0.8em;
+	font-weight: normal;
+	margin-top: 5px;
 }
 
 .player {
-  margin-bottom: 2px;
+	margin-bottom: 2px;
 }

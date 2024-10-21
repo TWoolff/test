@@ -42,3 +42,7 @@ export type CleanTeamData = {
 	points: number
 	gifUrl?: string
 }
+
+export type TeamColors = { 
+  [key: string]: string 
+}

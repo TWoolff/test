@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useMemo } from 'react'
 import { useAdminData } from '@/hooks/useAdminData'
-import { sortTeams } from '@/utils/sortingUtils'
+import { sortTeams } from '@/utils/sorting'
 import { PlayerType, TeamType, MatchType } from '@/types/types'
 import Accordion from '@/components/Accordion/Accordion'
 import PlayerForm from '@/components/Forms/PlayerForm'

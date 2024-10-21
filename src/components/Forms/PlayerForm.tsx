@@ -35,15 +35,11 @@ const PlayerForm: React.FC = () => {
 				imageUrl = (await uploadImage(formData)) as string
 			}
 
-			// Add the new player to Firestore
 			const docRef = await addDoc(collection(db, 'players'), {
 				...playerFormData,
 				profileImage: imageUrl,
 			})
 
-			console.log('New player added with ID: ', docRef.id)
-
-			// Reset the form
 			setPlayerFormData(initialPlayerFormData)
 			setFile(null)
 		} catch (error) {
