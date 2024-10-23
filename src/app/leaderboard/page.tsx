@@ -12,7 +12,9 @@ import css from './Leaderboard.module.css'
 const Leaderboard: React.FC = () => {
 	const { teams } = useAdminData()
 	const sortedTeams = useMemo(() => sortTeams(teams), [teams])
+	// Calculate the maximum score across all teams (for scaling the chart)
 	const maxScore = useMemo(() => Math.max(...sortedTeams.map(team => team.points)), [sortedTeams])
+	// Generate and memoize random colors for each team
 	const teamColors = useMemo<TeamColors>(() => sortedTeams.reduce((acc, team) => ({ ...acc, [team.id]: getRandomColor() }), {}), [sortedTeams])
 
 	return (

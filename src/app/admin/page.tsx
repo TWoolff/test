@@ -16,6 +16,7 @@ const Admin: React.FC = () => {
 	const renderPlayer = useCallback((player: PlayerType, i: number) => <Player key={`player-${i}`} {...player} />, [])
 	const sortedTeams = sortTeams(teams)
 
+	// Memoized computation to separate active and completed matches
 	const { activeMatches, completedMatches } = useMemo(() => {
 		const active: MatchType[] = []
 		const completed: MatchType[] = []
@@ -29,11 +30,13 @@ const Admin: React.FC = () => {
 		})
 
 		return {
+			// Sort matches by date (most recent first)
 			activeMatches: active.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
 			completedMatches: completed.sort((a, b) => new Date(b.completedDate || b.date).getTime() - new Date(a.completedDate || a.date).getTime()),
 		}
 	}, [matches])
 
+	// Render active matches for the 'Add score' accordion
 	const activeMatchesContent = (
 		<div className={css.activeMatches}>
 			{activeMatches.map((match: MatchType, i: number) => (

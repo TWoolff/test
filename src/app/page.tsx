@@ -19,12 +19,17 @@ const ScoreboardPage: React.FC = () => {
 		completed?: boolean
 	} | null>(null)
 
+	// Ref to store previous matches for comparison
 	const prevMatchesRef = useRef<MatchType[]>([])
+
+	// Ref to store timer for auto-closing modal
 	const modalTimerRef = useRef<NodeJS.Timeout | null>(null)
 
+	// Memoized computation of matches table
 	const matchesTable = useMemo<MatchesTable>(() => {
 		const table: MatchesTable = {}
 
+		// Initialize table with empty scores for all team combinations
 		teams.forEach(team => {
 			table[team.id] = {}
 			teams.forEach(opponent => {
@@ -34,6 +39,7 @@ const ScoreboardPage: React.FC = () => {
 			})
 		})
 
+		// Populate table with actual match data
 		matches.forEach(match => {
 			const homeId = match.homeTeam.id
 			const awayId = match.awayTeam.id
@@ -42,29 +48,30 @@ const ScoreboardPage: React.FC = () => {
 
 			if (!table[homeId]) {
 				table[homeId] = {}
+				table[homeId][awayId] = { score, date, completed: match.completed }
 			}
-
-			table[homeId][awayId] = { score, date, completed: match.completed }
 
 			if (!table[awayId]) {
 				table[awayId] = {}
+				table[awayId][homeId] = { score: `${match.awayScore} - ${match.homeScore}`, date, completed: match.completed }
 			}
-			table[awayId][homeId] = { score: `${match.awayScore} - ${match.homeScore}`, date, completed: match.completed }
-			table[awayId][homeId] = { score: `${match.awayScore} - ${match.homeScore}`, date, completed: match.completed }
 		})
 
 		return table
 	}, [matches, teams])
 
 	useEffect(() => {
+		// Find updated match by comparing with previous matches
 		const updatedMatch = matches.find((match, index) => {
 			const prevMatch = prevMatchesRef.current[index]
 			return prevMatch && (match.homeScore !== prevMatch.homeScore || match.awayScore !== prevMatch.awayScore || match.completed !== prevMatch.completed)
 		})
 
 		if (updatedMatch) {
+			// Determine scoring team
 			const scoringTeam = updatedMatch.homeScore > updatedMatch.awayScore ? updatedMatch.homeTeam : updatedMatch.awayTeam
 			const scoringTeamFull = teams.find(team => team.id === scoringTeam.id)
+
 			setModalContent({
 				homeTeam: updatedMatch.homeTeam.name,
 				awayTeam: updatedMatch.awayTeam.name,
@@ -80,11 +87,13 @@ const ScoreboardPage: React.FC = () => {
 				clearTimeout(modalTimerRef.current)
 			}
 
+			// Set new timer to close modal after 5 seconds
 			modalTimerRef.current = setTimeout(() => {
 				setIsModalOpen(false)
 			}, 5000)
 		}
 
+		// Update previous matches ref
 		prevMatchesRef.current = matches
 
 		return () => {
