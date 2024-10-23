@@ -8,6 +8,7 @@ type ScoreboardProps = {
 }
 
 const Scoreboard: React.FC<ScoreboardProps> = ({ teams, matchesTable }) => {
+	console.log(teams)
 	return (
 		<section className={css.scoreboard}>
 			{teams.length === 0 && <p style={{ gridColumn: '1 / -1' }}>Add teams to start</p>}

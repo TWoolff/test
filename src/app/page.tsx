@@ -46,14 +46,24 @@ const ScoreboardPage: React.FC = () => {
 			const score = `${match.homeScore} - ${match.awayScore}`
 			const date = new Date(match.date).toLocaleDateString()
 
+			// Update home team's record
 			if (!table[homeId]) {
 				table[homeId] = {}
-				table[homeId][awayId] = { score, date, completed: match.completed }
+			}
+			table[homeId][awayId] = { 
+				score, 
+				date, 
+				completed: match.completed 
 			}
 
+			// Update away team's record
 			if (!table[awayId]) {
 				table[awayId] = {}
-				table[awayId][homeId] = { score: `${match.awayScore} - ${match.homeScore}`, date, completed: match.completed }
+			}
+			table[awayId][homeId] = { 
+				score: `${match.awayScore} - ${match.homeScore}`, 
+				date, 
+				completed: match.completed 
 			}
 		})
 
